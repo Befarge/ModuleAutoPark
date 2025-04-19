@@ -38,7 +38,6 @@ public class Main {
                 }
                 textArea.append("-----------\n");
             }
-
         } catch (SQLException e) {
             textArea.setText("Ошибка подключения к базе:\n" + e.getMessage());
             e.printStackTrace();
