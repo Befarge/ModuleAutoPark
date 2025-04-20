@@ -13,6 +13,12 @@ public class User {
         this.password = password;
     }
 
+    public User(String login, String password) {
+        this.id = -1; //триггер, что мы используем объект под запись
+        this.login = login;
+        this.password = password;
+    }
+
     // Геттеры и сеттеры
     public int getId() {
         return id;
