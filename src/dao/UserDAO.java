@@ -39,4 +39,20 @@ public class UserDAO {
         }
         return null;
     }
+
+    public void deleteUser(int id) {
+        String query = "DELETE FROM users WHERE user_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                System.out.println("Пользователь не был найден");
+            } else {
+                System.out.println("Было удалено " + affectedRows + " пользовател(ь/ей)");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
