@@ -7,12 +7,18 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-        User user1 = new User("befarge", "gg17");
         ConfigReader config = new ConfigReader("config.properties");
         DatabaseConnection db = new DatabaseConnection(config);
         Connection connect = db.connect();
         UserDAO md = new UserDAO(connect);
-        md.addUser(user1);
+        User user1 = md.getUserById(2);
+        if (user1 != null) {
+            System.out.println(user1.getId());
+            System.out.println(user1.getPassword());
+            System.out.println(user1.getLogin());
+        } else {
+            System.out.println("юзер не найден");
+        }
         db.release();
         connect.close();
     }
