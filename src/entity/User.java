@@ -2,7 +2,7 @@ package entity;
 
 public class User {
     // Поля для пользователя
-    private int id;
+    private Integer id;
     private String login;
     private String password;
 
@@ -14,13 +14,12 @@ public class User {
     }
 
     public User(String login, String password) {
-        this.id = -1; //триггер, что мы используем объект под запись
         this.login = login;
         this.password = password;
     }
 
     // Геттеры и сеттеры
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
