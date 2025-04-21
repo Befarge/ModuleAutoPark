@@ -19,7 +19,7 @@ public class Main {
 //        } else {
 //            System.out.println("юзер не найден");
 //        }
-        md.deleteUser(2);
+        System.out.println(md.getUserByLogin("befarge").getPassword());
         db.release();
         connect.close();
     }

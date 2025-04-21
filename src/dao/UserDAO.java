@@ -55,4 +55,24 @@ public class UserDAO {
             e.printStackTrace();
         }
     }
+
+    public User getUserByLogin(String login) {
+        String sql = "SELECT * FROM users WHERE login = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, login);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("user_id");
+                String password = rs.getString("password");
+                return new User(id, login, password);
+            } else {
+                return null; // пользователь не найден
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
