@@ -1,21 +1,25 @@
 package entity;
+import types.UserRole;
 
 public class User {
     // Поля для пользователя
     private Integer id;
     private String login;
     private String password;
+    private UserRole role;
 
     // Конструктор
-    public User(int id, String login, String password) {
+    public User(int id, String login, String password, UserRole role) {
         this.id = id;
         this.login = login;
         this.password = password;
+        this.role = role;
     }
 
-    public User(String login, String password) {
+    public User(String login, String password, UserRole role) {
         this.login = login;
         this.password = password;
+        this.role = role;
     }
 
     // Геттеры и сеттеры
@@ -42,4 +46,8 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public UserRole getRole() { return role; }
+
+    public void setRole(UserRole role) { this.role = role; }
 }
