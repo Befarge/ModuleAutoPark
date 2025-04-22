@@ -1,5 +1,7 @@
 package dao;
 import entity.User;
+import types.UserRole;
+
 import java.sql.*;
 
 public class UserDAO {
@@ -11,10 +13,11 @@ public class UserDAO {
     }
 
     public void addUser(User user) {
-        String query = "INSERT INTO users (login, password) VALUES (?, ?)";
+        String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getRole().toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -30,7 +33,8 @@ public class UserDAO {
                 return new User(
                         rs.getInt("user_id"),
                         rs.getString("login"),
-                        rs.getString("password")
+                        rs.getString("password"),
+                        UserRole.valueOf(rs.getString("role"))
                 );
             }
             rs.close();
@@ -49,7 +53,7 @@ public class UserDAO {
             if (affectedRows == 0) {
                 System.out.println("Пользователь не был найден");
             } else {
-                System.out.println("Было удалено " + affectedRows + " пользовател(ь/ей)");
+                System.out.println("Было удалено пользователей " + affectedRows);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,9 +67,13 @@ public class UserDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                int id = rs.getInt("user_id");
                 String password = rs.getString("password");
-                return new User(id, login, password);
+                return new User(
+                        rs.getInt("user_id"),
+                        login,
+                        rs.getString("password"),
+                        UserRole.valueOf(rs.getString("role"))
+                );
             } else {
                 return null; // пользователь не найден
             }
