@@ -2,6 +2,7 @@ import dao.UserDAO;
 import db.ConfigReader;
 import db.DatabaseConnection;
 import entity.User;
+import types.UserRole;
 import java.sql.Connection;
 import java.sql.SQLException;
 
