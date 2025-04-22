@@ -7,11 +7,10 @@ public class Main {
                 "Александрович",
                 "Веников",
                 19,
-                "89611722076"
+                "89611722076",
+                1
         );
 
         driver1.printInfo();
-        driver1.printInfo();
-
     }
 }

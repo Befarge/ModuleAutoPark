@@ -21,12 +21,13 @@ public class Driver {
         this.onTrip = onTrip;
     }
 
-    public Driver(String firstName, String middleName, String lastName, int age, String phoneNumber) {
+    public Driver(String firstName, String middleName, String lastName, int age, String phoneNumber, int user_id) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
         this.age = age;
         this.phoneNumber = phoneNumber;
+        this.user_id = user_id;
     }
 
     // Геттеры и сеттеры
