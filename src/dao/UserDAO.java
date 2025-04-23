@@ -83,13 +83,13 @@ public class UserDAO {
         }
     }
 
-    public void updateUser(User user, int id) {
+    public void updateUser(User user) {
         String query = "UPDATE users SET login = ?, password = ?, role = ?::user_role WHERE user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getRole().toString());
-            stmt.setInt(4, id);
+            stmt.setInt(4, user.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

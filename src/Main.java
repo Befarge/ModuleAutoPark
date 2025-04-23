@@ -21,7 +21,7 @@ public class Main {
 
         if (user1 != null) {
             user1.setLogin("befarge");
-            md.updateUser(user1, user1.getId());
+//            md.updateUser(user1, user1.getId());
         } else {
             System.out.println("Пользователь не найден");
         }
