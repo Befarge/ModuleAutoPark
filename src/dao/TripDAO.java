@@ -20,7 +20,7 @@ public class TripDAO {
         }
     }
 
-    public void updateTrip(Trip trip, int tripId) {
+    public void updateTrip(Trip trip) {
         String sql = """
                         UPDATE trips
                         SET driver_id = ?, car_id = ?, start_time = ?, end_time = ?, distance = ?, fuel_used = ?
@@ -38,7 +38,7 @@ public class TripDAO {
             }
             stmt.setDouble(5, trip.getDistance());
             stmt.setDouble(6, trip.getFuelUsed());
-            stmt.setInt(7, tripId);
+            stmt.setInt(7, trip.getId());
 
             if (stmt.executeUpdate() > 0)
                 System.out.println("Поездка успешно обновлена.");
