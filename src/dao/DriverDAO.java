@@ -101,7 +101,7 @@ public class DriverDAO {
         return null;
     }
 
-    public void updateDriver(Driver driver, int driver_id) {
+    public void updateDriver(Driver driver) {
         String sql = """
                 UPDATE drivers SET
                 last_name = ?,
@@ -121,7 +121,7 @@ public class DriverDAO {
             stmt.setString(5, driver.getPhoneNumber());
             stmt.setBoolean(6, driver.isOnTrip());
             stmt.setInt(7, driver.getUserId());
-            stmt.setInt(8, driver_id);
+            stmt.setInt(8, driver.getId());
             if (stmt.executeUpdate() > 0)
                 System.out.println("Обновление прошло успешно");
         } catch (SQLException e) {
