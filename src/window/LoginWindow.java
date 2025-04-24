@@ -71,6 +71,9 @@ public class LoginWindow extends JFrame {
                                         LoginWindow.this,
                                         "Успешный вход! Добро пожаловать"
                                 );
+
+                                new MainWindowDriver(db);
+                                dispose();
                             } else {
                                 JOptionPane.showMessageDialog(
                                         LoginWindow.this,
@@ -99,7 +102,7 @@ public class LoginWindow extends JFrame {
 
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosed(WindowEvent e) {
+            public void windowClosing(WindowEvent e) {
                 db.close();
             }
         });
