@@ -1,7 +1,6 @@
 import db.ConfigReader;
 import db.DatabaseConnection;
 import window.LoginWindow;
-import window.RegistrationWindow;
 import javax.swing.*;
 import java.sql.SQLException;
 

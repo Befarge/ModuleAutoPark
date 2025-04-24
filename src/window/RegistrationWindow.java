@@ -103,7 +103,9 @@ public class RegistrationWindow extends JFrame {
                 );
                 db.getDriverDAO().addDriver(driver);
                 db.getConnection().commit();
-                JOptionPane.showMessageDialog(this, "Пользователь успешно зарегистрирован!");
+                JOptionPane.showMessageDialog(this, "Вы успешно зарегистрировались!");
+                parentWindow.setVisible(true);
+                dispose();
             } catch (SQLException ex) {
                 // Например, если логин уже занят (уникальность)
                 if (ex.getSQLState().equals("23505")) { // 23505 — уникальное ограничение нарушено в PostgreSQL
