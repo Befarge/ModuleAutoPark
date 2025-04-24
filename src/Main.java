@@ -12,19 +12,14 @@ public class Main {
         DatabaseConnection db = new DatabaseConnection(config);
         Connection connect = db.connect();
         UserDAO md = new UserDAO(connect);
-        //User user1 = new User("venikov", "ven741", UserRole.ADMIN);
+        User user1 = new User("nekr", "2110", UserRole.MANAGER);
         //md.addUser(user1);
-        //md.deleteUser(10);
+        //md.deleteUser(6);
         //System.out.println(md.getUserById(11).getLogin());
         //md.getUserByLogin("venikov").printInfo();
-        User user1 = md.getUserByLogin("venikov");
 
-        if (user1 != null) {
-            user1.setLogin("befarge");
-//            md.updateUser(user1, user1.getId());
-        } else {
-            System.out.println("Пользователь не найден");
-        }
+        System.out.println(md.addUser(user1));
+
         db.release();
         connect.close();
     }
