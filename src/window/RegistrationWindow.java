@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class RegistrationWindow extends JFrame {
     private DatabaseConnection db;
-
+    private JFrame parentWindow;
     private JTextField firstNameField;
     private JTextField middleNameField;
     private JTextField lastNameField;
@@ -22,8 +22,9 @@ public class RegistrationWindow extends JFrame {
     private JPasswordField passwordField;
     private JButton registerButton;
 
-    public RegistrationWindow(DatabaseConnection db) {
+    public RegistrationWindow(DatabaseConnection db, JFrame parentWindow) {
         this.db = db;
+        this.parentWindow =  parentWindow;
 
         setTitle("Регистрация");
         setSize(400, 400);
@@ -75,7 +76,7 @@ public class RegistrationWindow extends JFrame {
     }
 
     private void setupListeners() {
-        registerButton.addActionListener(e -> {
+        registerButton.addActionListener( e -> {
             String firstName = StringUtils.trimToNull(firstNameField.getText());
             String middleName = StringUtils.trimToNull(middleNameField.getText());
             String lastName = StringUtils.trimToNull(lastNameField.getText());
@@ -110,12 +111,16 @@ public class RegistrationWindow extends JFrame {
                     if (msg.contains("un_login")) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Пользователь с таким логином уже существует."
+                                "Пользователь с таким логином уже существует.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     } else if (msg.contains("driver_phone_number_key")) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Пользователь с таким номером телефона уже существует."
+                                "Пользователь с таким номером телефона уже существует.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     }
                 } else if (ex.getSQLState().equals("23514")) {
@@ -123,12 +128,16 @@ public class RegistrationWindow extends JFrame {
                     if (msg.contains("check_age")) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Возраст должен быть от 18."
+                                "Возраст должен быть от 18.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     } else if (msg.contains("check_phone")) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Неправильный формат телефона."
+                                "Неправильный формат телефона.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     } else if (
                             msg.contains("check_first_name") ||
@@ -137,25 +146,41 @@ public class RegistrationWindow extends JFrame {
                     ) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "В ФИО должны быть только буквы."
+                                "В ФИО должны быть только буквы.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     } else {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Ошибка в правильности данных."
+                                "Ошибка в правильности данных.",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
                         );
                     }
                 } else if (ex.getSQLState().equals("23502")) {
                     JOptionPane.showMessageDialog(
                             this,
-                            "Заполните все обязательные поля."
+                            "Заполните все обязательные поля.",
+                            "Ошибка",
+                            JOptionPane.ERROR_MESSAGE
                     );
                 } else {
-                    JOptionPane.showMessageDialog(this, "Ошибка регистрации: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Ошибка регистрации: " + ex.getMessage(),
+                            "Ошибка",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
                 ex.printStackTrace();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Возраст должен быть числом.");
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Возраст должен быть числом.",
+                        "Ошибка",
+                        JOptionPane.ERROR_MESSAGE
+                );
             } finally {
                 try {
                     db.getConnection().rollback(); // сбрасываем коммиты
@@ -170,7 +195,9 @@ public class RegistrationWindow extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                db.close();
+                if (parentWindow != null) {
+                    parentWindow.setVisible(true);
+                }
             }
         });
     }

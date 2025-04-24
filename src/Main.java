@@ -1,5 +1,6 @@
 import db.ConfigReader;
 import db.DatabaseConnection;
+import window.LoginWindow;
 import window.RegistrationWindow;
 import javax.swing.*;
 import java.sql.SQLException;
@@ -10,6 +11,8 @@ public class Main {
         DatabaseConnection db = new DatabaseConnection(config);
 
         // Запускаем GUI в потоке событий Swing
-        SwingUtilities.invokeLater(() -> new RegistrationWindow(db));
+        SwingUtilities.invokeLater(() -> {
+            new LoginWindow(db);
+        });
     }
 }

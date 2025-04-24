@@ -62,14 +62,13 @@ public class UserDAO {
         }
     }
 
-    public User getUserByLogin(String login) {
+    public User getUserByLogin(String login) throws SQLException {
         String sql = "SELECT * FROM users WHERE login = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, login);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String password = rs.getString("password");
                 return new User(
                         rs.getInt("user_id"),
                         login,
@@ -79,9 +78,6 @@ public class UserDAO {
             } else {
                 return null; // пользователь не найден
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
