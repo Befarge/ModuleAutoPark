@@ -1,41 +1,48 @@
 package db;
+import dao.DriverDAO;
+import dao.UserDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final int MAX_CONNECTIONS = 1;
-    private static int currentConnections = 0;
-
-    private final ConfigReader config;
+    private Connection connection;
+    private UserDAO userDAO;
+    private DriverDAO driverDAO;
 
     public DatabaseConnection(ConfigReader configReader) {
-        this.config = configReader;
-    }
-
-    public Connection connect() {
-        if (currentConnections >= MAX_CONNECTIONS) {
-            System.out.println("Превышен лимит соединений: " + MAX_CONNECTIONS);
-            return null;
-        }
-
         try {
             Connection connection = DriverManager.getConnection(
-                    config.getUrl(),
-                    config.getUsername(),
-                    config.getPassword()
+                    configReader.getUrl(),
+                    configReader.getUsername(),
+                    configReader.getPassword()
             );
-            currentConnections++;
-            return connection;
+
+            this.connection = connection;
+            this.userDAO = new UserDAO(connection);
+            this.driverDAO = new DriverDAO(connection);
         } catch (SQLException e) {
             System.out.println("Ошибка подключения к базе данных: " + e.getMessage());
-            return null;
         }
     }
 
-    public void release() {
-        if (currentConnections > 0) {
-            currentConnections--;
+
+    public UserDAO getUserDAO() {
+        return userDAO;
+    }
+
+    public DriverDAO getDriverDAO() {
+        return driverDAO;
+    }
+
+    public void close() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+                System.out.println("Соединение с БД закрыто.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
