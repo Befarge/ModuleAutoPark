@@ -107,28 +107,44 @@ public class RegistrationWindow extends JFrame {
                 // Например, если логин уже занят (уникальность)
                 if (ex.getSQLState().equals("23505")) { // 23505 — уникальное ограничение нарушено в PostgreSQL
                     String msg = ex.getMessage();
-                    if (msg.contains("un_login"))
+                    if (msg.contains("un_login")) {
                         JOptionPane.showMessageDialog(
                                 this,
                                 "Пользователь с таким логином уже существует."
                         );
-                    if (msg.contains("driver_phone_number_key"))
+                    } else if (msg.contains("driver_phone_number_key")) {
                         JOptionPane.showMessageDialog(
                                 this,
                                 "Пользователь с таким номером телефона уже существует."
                         );
+                    }
                 } else if (ex.getSQLState().equals("23514")) {
                     String msg = ex.getMessage();
-                    if (msg.contains("check_age"))
+                    if (msg.contains("check_age")) {
                         JOptionPane.showMessageDialog(
                                 this,
-                                "Возраст должен быть больше 18."
+                                "Возраст должен быть от 18."
                         );
-                    if (msg.contains("check_phone"))
+                    } else if (msg.contains("check_phone")) {
                         JOptionPane.showMessageDialog(
                                 this,
                                 "Неправильный формат телефона."
                         );
+                    } else if (
+                            msg.contains("check_first_name") ||
+                            msg.contains("check_middle_name") ||
+                            msg.contains("check_last_name")
+                    ) {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "В ФИО должны быть только буквы."
+                        );
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Ошибка в правильности данных."
+                        );
+                    }
                 } else if (ex.getSQLState().equals("23502")) {
                     JOptionPane.showMessageDialog(
                             this,
