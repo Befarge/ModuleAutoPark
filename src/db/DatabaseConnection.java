@@ -35,6 +35,8 @@ public class DatabaseConnection {
         return driverDAO;
     }
 
+    public Connection getConnection() { return connection; };
+
     public void close() {
         try {
             if (connection != null && !connection.isClosed()) {
