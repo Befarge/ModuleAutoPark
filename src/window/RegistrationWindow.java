@@ -1,18 +1,17 @@
 package window;
-
-import dao.DriverDAO;
-import dao.UserDAO;
+import db.DatabaseConnection;
 import entity.Driver;
 import entity.User;
-import support.UserValidator;
+import org.apache.commons.lang3.StringUtils;
 import types.UserRole;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 
 public class RegistrationWindow extends JFrame {
-    private final UserDAO userDAO;
-    private final DriverDAO driverDAO;
+    private DatabaseConnection db;
 
     private JTextField firstNameField;
     private JTextField middleNameField;
@@ -23,13 +22,12 @@ public class RegistrationWindow extends JFrame {
     private JPasswordField passwordField;
     private JButton registerButton;
 
-    public RegistrationWindow(UserDAO userDAO, DriverDAO driverDAO) {
-        this.userDAO = userDAO;
-        this.driverDAO = driverDAO;
+    public RegistrationWindow(DatabaseConnection db) {
+        this.db = db;
 
         setTitle("Регистрация");
         setSize(400, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         initComponents();
@@ -78,68 +76,86 @@ public class RegistrationWindow extends JFrame {
 
     private void setupListeners() {
         registerButton.addActionListener(e -> {
-            String firstName = firstNameField.getText();
-            String middleName = middleNameField.getText();
-            String lastName = lastNameField.getText();
-            String ageText = ageField.getText();
-            String phone = phoneField.getText();
-            String login = loginField.getText();
-            String password = new String(passwordField.getPassword());
+            String firstName = StringUtils.trimToNull(firstNameField.getText());
+            String middleName = StringUtils.trimToNull(middleNameField.getText());
+            String lastName = StringUtils.trimToNull(lastNameField.getText());
+            String ageText = StringUtils.trimToNull(ageField.getText());
+            String phone = StringUtils.trimToNull(phoneField.getText());
+            String login = StringUtils.trimToNull(loginField.getText());
+            String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
 
-            // Проверка пустых полей
-            if (!UserValidator.areFieldsNotEmpty(firstName, lastName, login, password, ageText, phone)) {
-                JOptionPane.showMessageDialog(this, "Пожалуйста, заполните все обязательные поля.");
-                return;
-            }
-
-            int age;
             try {
-                age = Integer.parseInt(ageText);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Возраст должен быть числом.");
-                return;
-            }
-
-            // Проверка возраста
-            if (!UserValidator.isValidAge(age)) {
-                JOptionPane.showMessageDialog(this, "Возраст должен быть не меньше 18 лет.");
-                return;
-            }
-
-            // Проверка телефона
-            if (!UserValidator.isValidPhoneNumber(phone)) {
-                JOptionPane.showMessageDialog(this, "Телефон должен начинаться с 89 и содержать 11 цифр.");
-                return;
-            }
-
-            // Всё ок — можно регистрировать
-            try {
+                db.getConnection().setAutoCommit(false); // начало транзакции
                 User user = new User (
                         login,
                         password,
                         UserRole.USER
                 );
-                int user_id = userDAO.addUser(user);
+                int user_id = db.getUserDAO().addUser(user);
                 Driver driver = new Driver (
                         firstName,
                         middleName,
                         lastName,
-                        age,
+                        Integer.parseInt(ageText),
                         phone,
                         user_id
                 );
-                driverDAO.addDriver(driver);
+                db.getDriverDAO().addDriver(driver);
+                db.getConnection().commit();
                 JOptionPane.showMessageDialog(this, "Пользователь успешно зарегистрирован!");
             } catch (SQLException ex) {
                 // Например, если логин уже занят (уникальность)
                 if (ex.getSQLState().equals("23505")) { // 23505 — уникальное ограничение нарушено в PostgreSQL
-                    JOptionPane.showMessageDialog(this, "Пользователь с таким логином уже существует.");
+                    String msg = ex.getMessage();
+                    if (msg.contains("un_login"))
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Пользователь с таким логином уже существует."
+                        );
+                    if (msg.contains("driver_phone_number_key"))
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Пользователь с таким номером телефона уже существует."
+                        );
+                } else if (ex.getSQLState().equals("23514")) {
+                    String msg = ex.getMessage();
+                    if (msg.contains("check_age"))
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Возраст должен быть больше 18."
+                        );
+                    if (msg.contains("check_phone"))
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Неправильный формат телефона."
+                        );
+                } else if (ex.getSQLState().equals("23502")) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Заполните все обязательные поля."
+                    );
                 } else {
                     JOptionPane.showMessageDialog(this, "Ошибка регистрации: " + ex.getMessage());
                 }
                 ex.printStackTrace();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Возраст должен быть числом.");
+            } finally {
+                try {
+                    db.getConnection().rollback(); // сбрасываем коммиты
+                    db.getConnection().setAutoCommit(true); // возвращаем автокоммиты
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
 
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                db.close();
+            }
         });
     }
 }
