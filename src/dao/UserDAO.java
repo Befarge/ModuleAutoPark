@@ -12,16 +12,20 @@ public class UserDAO {
         this.connection = connection;
     }
 
-    public void addUser(User user) {
+    public Integer addUser(User user) {
         String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getRole().toString());
             stmt.executeUpdate();
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next())
+                return keys.getInt("user_id");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public User getUserById(int id) {
