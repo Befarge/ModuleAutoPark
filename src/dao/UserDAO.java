@@ -12,7 +12,7 @@ public class UserDAO {
         this.connection = connection;
     }
 
-    public Integer addUser(User user) {
+    public Integer addUser(User user) throws SQLException {
         String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getLogin());
@@ -22,8 +22,6 @@ public class UserDAO {
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next())
                 return keys.getInt("user_id");
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return null;
     }

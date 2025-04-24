@@ -9,7 +9,7 @@ public class DriverDAO {
         this.connection = connection;
     }
 
-    public void addDriver(Driver driver) {
+    public void addDriver(Driver driver) throws SQLException {
         String sql = "INSERT INTO drivers (last_name, first_name, middle_name, age, phone_number, on_trip, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, driver.getLastName());
@@ -21,8 +21,6 @@ public class DriverDAO {
             stmt.setInt(7, driver.getUserId());
             if (stmt.executeUpdate() > 0)
                 System.out.println("Добавление прошло успешно");
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

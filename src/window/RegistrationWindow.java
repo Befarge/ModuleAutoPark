@@ -1,9 +1,19 @@
 package window;
+
+import dao.DriverDAO;
+import dao.UserDAO;
+import entity.Driver;
+import entity.User;
 import support.UserValidator;
+import types.UserRole;
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class RegistrationWindow extends JFrame {
+    private final UserDAO userDAO;
+    private final DriverDAO driverDAO;
+
     private JTextField firstNameField;
     private JTextField middleNameField;
     private JTextField lastNameField;
@@ -13,7 +23,10 @@ public class RegistrationWindow extends JFrame {
     private JPasswordField passwordField;
     private JButton registerButton;
 
-    public RegistrationWindow() {
+    public RegistrationWindow(UserDAO userDAO, DriverDAO driverDAO) {
+        this.userDAO = userDAO;
+        this.driverDAO = driverDAO;
+
         setTitle("Регистрация");
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,7 +113,33 @@ public class RegistrationWindow extends JFrame {
             }
 
             // Всё ок — можно регистрировать
-            JOptionPane.showMessageDialog(this, "Пользователь зарегистрирован!");
+            try {
+                User user = new User (
+                        login,
+                        password,
+                        UserRole.USER
+                );
+                int user_id = userDAO.addUser(user);
+                Driver driver = new Driver (
+                        firstName,
+                        middleName,
+                        lastName,
+                        age,
+                        phone,
+                        user_id
+                );
+                driverDAO.addDriver(driver);
+                JOptionPane.showMessageDialog(this, "Пользователь успешно зарегистрирован!");
+            } catch (SQLException ex) {
+                // Например, если логин уже занят (уникальность)
+                if (ex.getSQLState().equals("23505")) { // 23505 — уникальное ограничение нарушено в PostgreSQL
+                    JOptionPane.showMessageDialog(this, "Пользователь с таким логином уже существует.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Ошибка регистрации: " + ex.getMessage());
+                }
+                ex.printStackTrace();
+            }
+
         });
     }
 }
