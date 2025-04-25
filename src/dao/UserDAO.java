@@ -1,7 +1,7 @@
 package dao;
+import customException.*;
 import entity.User;
 import types.UserRole;
-
 import java.sql.*;
 
 public class UserDAO {
@@ -12,7 +12,8 @@ public class UserDAO {
         this.connection = connection;
     }
 
-    public Integer addUser(User user) throws SQLException {
+    public Integer addUser(User user) throws SQLException
+    {
         String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getLogin());
@@ -22,6 +23,20 @@ public class UserDAO {
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next())
                 return keys.getInt("user_id");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23505")) {
+                String msg = ex.getMessage();
+                ex.printStackTrace();
+                if (msg.contains("un_login"))
+                    throw new UniquenessLoginException("Такой логин уже существует.");
+                else
+                    throw new UniquenessException("Ошибка уникальности");
+            } else if (ex.getSQLState().equals("23502")) {
+                throw new NullException("Не все данные введены");
+            } else {
+                throw ex;
+            }
         }
         return null;
     }
@@ -93,5 +108,4 @@ public class UserDAO {
             e.printStackTrace();
         }
     }
-
 }

@@ -72,7 +72,7 @@ public class LoginWindow extends JFrame {
                                         "Успешный вход! Добро пожаловать"
                                 );
 
-                                new MainWindowDriver(db);
+                                new MainWindow(db, user);
                                 dispose();
                             } else {
                                 JOptionPane.showMessageDialog(

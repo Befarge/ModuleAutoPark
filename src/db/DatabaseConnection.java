@@ -21,6 +21,7 @@ public class DatabaseConnection {
             this.connection = connection;
             this.userDAO = new UserDAO(connection);
             this.driverDAO = new DriverDAO(connection);
+            this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             System.out.println("Ошибка подключения к базе данных: " + e.getMessage());
         }
@@ -36,6 +37,11 @@ public class DatabaseConnection {
     }
 
     public Connection getConnection() { return connection; };
+
+    public void commit () throws SQLException {
+        connection.setAutoCommit(true);
+        connection.setAutoCommit(false);
+    }
 
     public void close() {
         try {

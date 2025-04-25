@@ -1,4 +1,5 @@
 package dao;
+import customException.*;
 import entity.Driver;
 import java.sql.*;
 
@@ -9,7 +10,8 @@ public class DriverDAO {
         this.connection = connection;
     }
 
-    public void addDriver(Driver driver) throws SQLException {
+    public void addDriver(Driver driver) throws SQLException
+    {
         String sql = "INSERT INTO drivers (last_name, first_name, middle_name, age, phone_number, on_trip, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, driver.getLastName());
@@ -21,6 +23,33 @@ public class DriverDAO {
             stmt.setInt(7, driver.getUserId());
             if (stmt.executeUpdate() > 0)
                 System.out.println("Добавление прошло успешно");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23505")) {
+                String msg = ex.getMessage();
+                if (msg.contains("driver_phone_number_key"))
+                    throw new UniquenessPhoneException("Пользователь с таким номером телефона уже существует.");
+                else
+                    throw new UniquenessException("Ошибка уникальности");
+            } else if (ex.getSQLState().equals("23514")) {
+                String msg = ex.getMessage();
+                if (msg.contains("check_age"))
+                    throw new CheckAgeException("Возраст должен быть от 18.");
+                else if (msg.contains("check_phone"))
+                    throw new CheckPhoneException("Номер неправильно набран.");
+                else if (
+                        msg.contains("check_first_name") ||
+                        msg.contains("check_middle_name") ||
+                        msg.contains("check_last_name")
+                )
+                    throw new CheckFmlException("ФИО содержит ошибку");
+                else
+                    throw new CheckException("Не прошли чеки.");
+            } else if (ex.getSQLState().equals("23502")) {
+                throw new NullException("Не все данные введены");
+            } else {
+                throw ex;
+            }
         }
     }
 
