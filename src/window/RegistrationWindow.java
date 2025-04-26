@@ -77,7 +77,7 @@ public class RegistrationWindow extends JFrame {
 
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosed(WindowEvent e) {
+            public void windowClosed (WindowEvent e) {
                 if (parentWindow != null) {
                     parentWindow.setVisible(true);
                 }

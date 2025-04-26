@@ -1,9 +1,6 @@
-import customException.NullException;
 import db.ConfigReader;
 import db.DatabaseConnection;
-import window.LoginWindow;
 import window.MainWindow;
-import window.RegistrationWindow;
 
 import javax.swing.*;
 import java.sql.SQLException;
@@ -15,11 +12,14 @@ public class Main {
 
         // Запускаем GUI в потоке событий Swing
         SwingUtilities.invokeLater(() -> {
-//                new MainWindow(
-//                        db,
-//                        db.getUserDAO().getUserByLogin("befarge")
-//                );
-            new LoginWindow(db);
+            try {
+                new MainWindow(
+                        db,
+                        db.getUserDAO().getUserByLogin("befarge")
+                );
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         });
     }
 }

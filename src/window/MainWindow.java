@@ -20,7 +20,6 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         initUser();
-        setupListeners();
         setVisible(true);
     }
 
@@ -39,20 +38,17 @@ public class MainWindow extends JFrame {
         buttonPanel.add(personalCabinetButton);
         panel.add(buttonPanel, BorderLayout.CENTER);
 
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing (WindowEvent e) {
+                db.close();
+            }
+        });
+
         add(panel);
     }
 
     private void openPersonalCabinet() {
         ProfileWindow profileWindow = new ProfileWindow(this, db, user);
-        profileWindow.setVisible(true);
-    }
-
-    private void setupListeners() {
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                db.close();
-            }
-        });
     }
 }

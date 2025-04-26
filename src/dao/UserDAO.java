@@ -12,8 +12,7 @@ public class UserDAO {
         this.connection = connection;
     }
 
-    public Integer addUser(User user) throws SQLException
-    {
+    public Integer addUser(User user) throws SQLException {
         String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getLogin());
@@ -77,7 +76,7 @@ public class UserDAO {
         }
     }
 
-    public User getUserByLogin(String login) throws SQLException {
+    public User getUserByLogin (String login) throws SQLException {
         String sql = "SELECT * FROM users WHERE login = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, login);
@@ -96,7 +95,7 @@ public class UserDAO {
         }
     }
 
-    public void updateUser(User user) {
+    public void updateUser(User user) throws SQLException {
         String query = "UPDATE users SET login = ?, password = ?, role = ?::user_role WHERE user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getLogin());
@@ -104,8 +103,13 @@ public class UserDAO {
             stmt.setString(3, user.getRole().toString());
             stmt.setInt(4, user.getId());
             stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23502")) {
+                throw new NullException("Не все данные введены");
+            } else {
+                throw ex;
+            }
         }
     }
 }

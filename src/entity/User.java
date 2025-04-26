@@ -22,6 +22,13 @@ public class User {
         this.role = role;
     }
 
+    public User(User user) {
+        this.id = user.getId();
+        this.login = user.getLogin();
+        this.password = user.getPassword();
+        this.role = user.getRole();
+    }
+
     // Геттеры и сеттеры
     public Integer getId() {
         return id;
