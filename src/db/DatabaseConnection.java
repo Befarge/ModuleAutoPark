@@ -1,5 +1,7 @@
 package db;
+import dao.CarDAO;
 import dao.DriverDAO;
+import dao.TripDAO;
 import dao.UserDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,6 +11,8 @@ public class DatabaseConnection {
     private Connection connection;
     private UserDAO userDAO;
     private DriverDAO driverDAO;
+    private TripDAO tripDAO;
+    private CarDAO carDAO;
 
     public DatabaseConnection(ConfigReader configReader) {
         try {
@@ -21,6 +25,8 @@ public class DatabaseConnection {
             this.connection = connection;
             this.userDAO = new UserDAO(connection);
             this.driverDAO = new DriverDAO(connection);
+            this.tripDAO = new TripDAO(connection);
+            this.carDAO = new CarDAO(connection);
             this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             System.out.println("Ошибка подключения к базе данных: " + e.getMessage());
@@ -30,6 +36,14 @@ public class DatabaseConnection {
 
     public UserDAO getUserDAO() {
         return userDAO;
+    }
+
+    public TripDAO getTripDAO() {
+        return tripDAO;
+    }
+
+    public CarDAO getCarDAO() {
+        return carDAO;
     }
 
     public DriverDAO getDriverDAO() {

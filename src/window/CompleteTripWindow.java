@@ -1,13 +1,16 @@
 package window;
 
+import customException.*;
 import db.DatabaseConnection;
+import entity.Car;
+import entity.Driver;
+import entity.Trip;
 import entity.User;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 public class CompleteTripWindow extends JDialog {
     private JTextField distanceField;
@@ -19,6 +22,7 @@ public class CompleteTripWindow extends JDialog {
     public CompleteTripWindow(JFrame parent, DatabaseConnection db, User user) {
         super(parent, "Завершение поездки", true);
         this.user = user;
+        this.db = db;
         setSize(300, 250);
         setResizable(false);
         setLocationRelativeTo(null);
@@ -50,10 +54,10 @@ public class CompleteTripWindow extends JDialog {
     }
 
     private void onCompleteTrip() {
-        String distanceText = distanceField.getText().trim();
-        String fuelText = fuelLevelField.getText().trim();
+        String distanceText = StringUtils.trimToNull(distanceField.getText());
+        String fuelText = StringUtils.trimToNull(fuelLevelField.getText());
 
-        if (distanceText.isEmpty() || fuelText.isEmpty()) {
+        if (distanceText == null || fuelText == null) {
             JOptionPane.showMessageDialog(this, "Пожалуйста, заполните все поля!", "Ошибка", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -61,18 +65,69 @@ public class CompleteTripWindow extends JDialog {
         try {
             int distance = Integer.parseInt(distanceText);
             int fuel = Integer.parseInt(fuelText);
+            Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
+            Trip trip = db.getTripDAO().getTripByDriverId(driver.getId());
 
-            if (distance <= 0 || fuel < 0 || fuel > 100) {
-                JOptionPane.showMessageDialog(this, "Введите корректные значения.", "Ошибка", JOptionPane.ERROR_MESSAGE);
-                return;
+            db.getTripDAO().finishTrip(distance, fuel, trip.getId());
+            driver.setOnTrip(false);
+            Car car = db.getCarDAO().getCarById(trip.getCarId());
+            car.setAvailable(true);
+            db.getDriverDAO().updateDriver(driver);
+            db.getCarDAO().updateCar(car);
+
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    "Вы уверены, что хотите завершить поездку?",
+                    "Подтверждение",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (result == JOptionPane.YES_OPTION) {
+                db.commit();
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Поездка успешно завершена!"
+                );
+                dispose(); // Закрыть окно после завершения
             }
-
-            // Здесь можно вставить код для обновления поездки в базе данных
-
-            JOptionPane.showMessageDialog(this, "Поездка успешно завершена!");
-            dispose(); // Закрыть окно после завершения
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Введите числовые значения.", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Введите числовые значения.",
+                    "Ошибка", JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckDistanceException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Расстояние не может быть ниже 0.",
+                    "Ошибка", JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckFuelException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Топливо не может быть ниже 0.",
+                    "Ошибка", JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Какие-то данные не проходят проверку.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Неизвестная ошибка.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } finally {
+            try {
+                db.getConnection().rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

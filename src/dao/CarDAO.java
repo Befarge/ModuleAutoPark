@@ -69,7 +69,7 @@ public class CarDAO {
     }
 
 
-    public void updateCar(Car car, int car_id) {
+    public void updateCar(Car car) {
         String sql = "UPDATE cars SET model = ?, license_plate = ?, mileage = ?, fuel_level = ?, last_maintenance_date = ?, is_available = ? WHERE car_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, car.getModel());
@@ -78,7 +78,7 @@ public class CarDAO {
             stmt.setDouble(4, car.getFuelLevel());
             stmt.setDate(5, Date.valueOf(car.getLastMaintenanceDate()));
             stmt.setBoolean(6, car.isAvailable());
-            stmt.setInt(7, car_id);
+            stmt.setInt(7, car.getId());
             if (stmt.executeUpdate() > 0)
                 System.out.println("Машина была успешно обновлена");
         } catch (SQLException e) {

@@ -1,4 +1,5 @@
 package dao;
+import customException.*;
 import entity.Trip;
 import java.sql.*;
 
@@ -9,16 +10,63 @@ public class TripDAO {
         this.connection = connection;
     }
 
-    public void addTrip(Trip trip) {
-        String sql = "INSERT INTO trips (driver_id, car_id, start_time) VALUES (?, ?, NOW())";
+    public void addTrip(Trip trip) throws SQLException {
+        String sql = """
+                INSERT INTO trips
+                (driver_id, car_id, start_time, end_time, distance, fuel_used)
+                VALUES (?, ?, NOW(), ?, ?, ?)
+        """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, trip.getDriverId());
             stmt.setInt(2, trip.getCarId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            stmt.setObject(3, trip.getEndTime(), Types.TIMESTAMP);
+            stmt.setObject(4, trip.getDistance(), Types.INTEGER);
+            stmt.setObject(5, trip.getFuelUsed(), Types.INTEGER);
+            System.out.println(stmt.executeUpdate());
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23514")) {
+                String msg = ex.getMessage();
+                if (msg.contains("check_distance"))
+                    throw new CheckDistanceException("Расстояние от 0.");
+                else if (msg.contains("check_fuel_used"))
+                    throw new CheckFuelException("Топливо от 0.");
+                else
+                    throw new CheckException("Не прошли чеки.");
+            } else {
+                throw ex;
+            }
         }
     }
+
+    public void finishTrip(int distance, int fuel, int trip_id) throws SQLException {
+        String sql = "UPDATE trips SET end_time = NOW(), distance = ?, fuel_used = ? WHERE trip_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, distance);
+            stmt.setInt(2, fuel);
+            stmt.setInt(3, trip_id);
+
+            if (stmt.executeUpdate() > 0) {
+                System.out.println("Поездка успешно завершена.");
+            } else {
+                System.out.println("Поездка с указанным ID не найдена.");
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23514")) {
+                String msg = ex.getMessage();
+                if (msg.contains("check_distance"))
+                    throw new CheckDistanceException("Расстояние от 0.");
+                else if (msg.contains("check_fuel_used"))
+                    throw new CheckFuelException("Топливо от 0.");
+                else
+                    throw new CheckException("Не прошли чеки.");
+            } else {
+                throw ex;
+            }
+        }
+    }
+
 
     public void updateTrip(Trip trip) {
         String sql = """
