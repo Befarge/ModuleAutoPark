@@ -30,6 +30,7 @@ public class ProfileWindow extends JDialog {
         this.user = user;
         this.db = db;
         setSize(400, 300);
+        setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

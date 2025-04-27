@@ -30,6 +30,7 @@ public class RegistrationWindow extends JFrame {
 
         setTitle("Регистрация");
         setSize(400, 400);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 

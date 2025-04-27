@@ -15,7 +15,8 @@ public class MainWindow extends JFrame {
         this.user = user;
 
         setTitle("Главное окно");
-        setSize(600, 400);
+        setSize(200, 200);
+        setResizable(false);
         setLocationRelativeTo(null); // центр экрана
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -24,19 +25,17 @@ public class MainWindow extends JFrame {
     }
 
     private void initUser() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-
-        // Добавим панель с кнопками
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
+        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
 
         // Кнопка "Личный кабинет"
         JButton personalCabinetButton = new JButton("Личный кабинет");
         personalCabinetButton.addActionListener(e -> openPersonalCabinet());
+        panel.add(personalCabinetButton);
 
-        buttonPanel.add(personalCabinetButton);
-        panel.add(buttonPanel, BorderLayout.CENTER);
+        //Кнопка "Завершить поездку"
+        JButton endTheTripButton = new JButton("Завершить поездку");
+        endTheTripButton.addActionListener(e -> openEndTheTrip());
+        panel.add(endTheTripButton);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -50,5 +49,20 @@ public class MainWindow extends JFrame {
 
     private void openPersonalCabinet() {
         ProfileWindow profileWindow = new ProfileWindow(this, db, user);
+    }
+
+    private void openEndTheTrip () {
+        boolean isTrip = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
+        System.out.println(isTrip);
+        if (isTrip) {
+            new CompleteTripWindow(this, db, user);
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "У вас нет начатой поездки.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

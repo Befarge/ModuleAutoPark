@@ -20,6 +20,7 @@ public class LoginWindow extends JFrame {
         setTitle("Авторизация");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(300, 200);
+        setResizable(false);
         setLocationRelativeTo(null); // Центр экрана
 
         initComponents();

@@ -20,6 +20,7 @@ public class ChangePasswordWindow extends JDialog {
         this.user = user;
         this.db = db;
         setSize(300, 150);
+        setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 

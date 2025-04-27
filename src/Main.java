@@ -15,7 +15,7 @@ public class Main {
             try {
                 new MainWindow(
                         db,
-                        db.getUserDAO().getUserByLogin("befarge")
+                        db.getUserDAO().getUserByLogin("venikov")
                 );
             } catch (SQLException e) {
                 e.printStackTrace();
