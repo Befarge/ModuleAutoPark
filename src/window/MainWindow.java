@@ -32,6 +32,11 @@ public class MainWindow extends JFrame {
         personalCabinetButton.addActionListener(e -> openPersonalCabinet());
         panel.add(personalCabinetButton);
 
+        //Кнопка "Взять машину"
+        JButton listCarButton = new JButton("Взять машину");
+        listCarButton.addActionListener(e -> openListCar());
+        panel.add(listCarButton);
+
         //Кнопка "Завершить поездку"
         JButton endTheTripButton = new JButton("Завершить поездку");
         endTheTripButton.addActionListener(e -> openEndTheTrip());
@@ -59,6 +64,20 @@ public class MainWindow extends JFrame {
             JOptionPane.showMessageDialog(
                     this,
                     "У вас нет начатой поездки.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void openListCar() {
+        boolean isTrip = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
+        if (!isTrip) {
+            new ListCarWindow(this, db, user);
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "У вас уже есть машина.",
                     "Ошибка",
                     JOptionPane.ERROR_MESSAGE
             );
