@@ -23,7 +23,7 @@ public class CompleteTripWindow extends JDialog {
         super(parent, "Завершение поездки", true);
         this.user = user;
         this.db = db;
-        setSize(300, 250);
+        setSize(250, 150);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -40,7 +40,7 @@ public class CompleteTripWindow extends JDialog {
         distanceField = new JTextField();
         fieldsPanel.add(distanceField);
 
-        fieldsPanel.add(new JLabel("Топливо (%):"));
+        fieldsPanel.add(new JLabel("Топливо (л):"));
         fuelLevelField = new JTextField();
         fieldsPanel.add(fuelLevelField);
         add(fieldsPanel, BorderLayout.CENTER);
@@ -72,6 +72,8 @@ public class CompleteTripWindow extends JDialog {
             driver.setOnTrip(false);
             Car car = db.getCarDAO().getCarById(trip.getCarId());
             car.setAvailable(true);
+            car.setFuelLevel(fuel);
+            car.setMileage(car.getMileage() + distance);
             db.getDriverDAO().updateDriver(driver);
             db.getCarDAO().updateCar(car);
 
