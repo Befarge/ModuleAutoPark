@@ -120,7 +120,7 @@ public class TripDAO {
     }
 
     public Trip getTripByDriverId(int driver_id) {
-        String sql = "SELECT * FROM trips WHERE driver_id = ?";
+        String sql = "SELECT * FROM trips WHERE driver_id = ? AND end_time IS NULL";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, driver_id);
             ResultSet rs = stmt.executeQuery();
@@ -142,7 +142,7 @@ public class TripDAO {
     }
 
     public Trip getTripByCarId(int car_id) {
-        String sql = "SELECT * FROM trips WHERE car_id = ?";
+        String sql = "SELECT * FROM trips WHERE car_id = ? AND end_time IS NULL";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, car_id);
             ResultSet rs = stmt.executeQuery();

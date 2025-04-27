@@ -20,6 +20,7 @@ public class ProfileWindow extends JDialog {
     private JButton saveButton;
     private JButton changePassword;
     private JButton quitAccount;
+    private JButton viewCar;
     private DatabaseConnection db;
     private JFrame parent;
     private User user;
@@ -74,6 +75,10 @@ public class ProfileWindow extends JDialog {
         quitAccount = new JButton("Выйти из аккаунта");
         quitAccount.addActionListener(e -> clickQuitAccount());
         add(quitAccount);
+
+        viewCar = new JButton("Текущая машина");
+        viewCar.addActionListener(e -> clickViewCar());
+        add(viewCar);
     }
 
     private void onSave() {
@@ -176,6 +181,19 @@ public class ProfileWindow extends JDialog {
         new LoginWindow(db);
         parent.dispose();
         dispose();
+    }
+
+    private void clickViewCar () {
+        boolean isHaveCar = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
+        if (isHaveCar)
+            new ViewCarWindow(this, db, user);
+        else
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Вы еще не выбрали машину для поездки.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
     }
 }
 

@@ -53,7 +53,6 @@ public class MainWindow extends JFrame {
 
     private void openEndTheTrip () {
         boolean isTrip = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
-        System.out.println(isTrip);
         if (isTrip) {
             new CompleteTripWindow(this, db, user);
         } else {

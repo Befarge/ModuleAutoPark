@@ -1,6 +1,8 @@
 package dao;
 import entity.Car;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CarDAO {
     private final Connection connection;
@@ -96,4 +98,28 @@ public class CarDAO {
             e.printStackTrace();
         }
     }
+
+    public List<Car> getAllCars() {
+        List<Car> cars = new ArrayList<>();
+        String sql = "SELECT * FROM cars WHERE is_available = true";
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Car car = new Car(
+                        rs.getInt("car_id"),
+                        rs.getString("model"),
+                        rs.getString("license_plate"),
+                        rs.getInt("mileage"),
+                        rs.getInt("fuel_level"),
+                        rs.getString("last_maintenance_date"),
+                        rs.getBoolean("is_available")
+                );
+                cars.add(car);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cars;
+    }
+
 }
