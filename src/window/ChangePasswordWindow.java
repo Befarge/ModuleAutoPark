@@ -45,14 +45,15 @@ public class ChangePasswordWindow extends JDialog {
 
     private void onSave() {
         String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
-        User copy_user = new User(user);
-        copy_user.setPassword(password);
+        User temp_user = db.getUserDAO().getUserById(user.getId());
+        temp_user.setPassword(password);
 
         try {
-            db.getUserDAO().updateUser(copy_user);
+            db.getUserDAO().updateUser(temp_user);
             db.commit();
             user.setPassword(password);
             JOptionPane.showMessageDialog(this, "Пароль изменен.");
+            dispose();
         } catch (NullException ex) {
             JOptionPane.showMessageDialog(
                     this,

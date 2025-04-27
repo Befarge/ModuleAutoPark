@@ -1,10 +1,15 @@
 package window;
 
+import customException.*;
 import db.DatabaseConnection;
 import entity.Driver;
 import entity.User;
+import org.apache.commons.lang3.StringUtils;
+import types.UserRole;
+
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class ProfileWindow extends JDialog {
     private JTextField firstNameField;
@@ -13,7 +18,6 @@ public class ProfileWindow extends JDialog {
     private JTextField ageField;
     private JTextField phoneField;
     private JButton saveButton;
-    private JButton cancelButton;
     private JButton changePassword;
     private JButton quitAccount;
     private DatabaseConnection db;
@@ -62,10 +66,6 @@ public class ProfileWindow extends JDialog {
         saveButton.addActionListener(e -> onSave());
         add(saveButton);
 
-        cancelButton = new JButton("Отмена");
-        cancelButton.addActionListener(e -> dispose());
-        add(cancelButton);
-
         changePassword = new JButton("Изменить пароль");
         changePassword.addActionListener(e -> clickChangePassword());
         add(changePassword);
@@ -76,9 +76,95 @@ public class ProfileWindow extends JDialog {
     }
 
     private void onSave() {
-        // Здесь будет логика сохранения изменений
-        JOptionPane.showMessageDialog(this, "Данные сохранены");
-        // Можно вызвать метод DAO для обновления данных в базе
+        String firstName = StringUtils.trimToNull(firstNameField.getText());
+        String middleName = StringUtils.trimToNull(middleNameField.getText());
+        String lastName = StringUtils.trimToNull(lastNameField.getText());
+        String ageText = StringUtils.trimToNull(ageField.getText());
+        String phone = StringUtils.trimToNull(phoneField.getText());
+
+        try {
+            Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
+            driver.setFirstName(firstName);
+            driver.setMiddleName(middleName);
+            driver.setLastName(lastName);
+            driver.setAge(Integer.parseInt(ageText));
+            driver.setPhoneNumber(phone);
+
+            db.getDriverDAO().updateDriver(driver);
+            db.commit();
+
+            JOptionPane.showMessageDialog(this, "Данные сохранены");
+            dispose();
+        } catch (UniquenessPhoneException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Пользователь с таким номером телефона уже существует.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (UniquenessException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ошибка в уникальности данных.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckAgeException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Возраст должен быть от 18.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckPhoneException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Неправильный формат телефона.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckFmlException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "В ФИО должны быть только буквы.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (CheckException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Какие-то данные не проходят проверку.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (NullException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Заполните все обязательные данные.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Возраст должен быть числом.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Неизвестная ошибка.",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } finally {
+            try {
+                db.getConnection().rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void clickChangePassword () {

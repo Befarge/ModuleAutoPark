@@ -128,7 +128,7 @@ public class DriverDAO {
         return null;
     }
 
-    public void updateDriver(Driver driver) {
+    public void updateDriver(Driver driver) throws SQLException {
         String sql = """
                 UPDATE drivers SET
                 last_name = ?,
@@ -151,8 +151,33 @@ public class DriverDAO {
             stmt.setInt(8, driver.getId());
             if (stmt.executeUpdate() > 0)
                 System.out.println("Обновление прошло успешно");
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            if (ex.getSQLState().equals("23505")) {
+                String msg = ex.getMessage();
+                if (msg.contains("driver_phone_number_key"))
+                    throw new UniquenessPhoneException("Пользователь с таким номером телефона уже существует.");
+                else
+                    throw new UniquenessException("Ошибка уникальности");
+            } else if (ex.getSQLState().equals("23514")) {
+                String msg = ex.getMessage();
+                if (msg.contains("check_age"))
+                    throw new CheckAgeException("Возраст должен быть от 18.");
+                else if (msg.contains("check_phone"))
+                    throw new CheckPhoneException("Номер неправильно набран.");
+                else if (
+                        msg.contains("check_first_name") ||
+                                msg.contains("check_middle_name") ||
+                                msg.contains("check_last_name")
+                )
+                    throw new CheckFmlException("ФИО содержит ошибку");
+                else
+                    throw new CheckException("Не прошли чеки.");
+            } else if (ex.getSQLState().equals("23502")) {
+                throw new NullException("Не все данные введены");
+            } else {
+                throw ex;
+            }
         }
     }
 
@@ -166,7 +191,7 @@ public class DriverDAO {
                 System.out.println("Ничего не было удалено");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+
         }
     }
 }
