@@ -32,6 +32,11 @@ public class AdminWindow extends JFrame {
         changePasswordButton.addActionListener(e -> changePassword());
         panel.add(changePasswordButton);
 
+        // Кнопка "Список машин"
+        JButton listCarsButton = new JButton("Список машин");
+        listCarsButton.addActionListener(e -> clickListCars());
+        panel.add(listCarsButton);
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing (WindowEvent e) {
@@ -44,5 +49,9 @@ public class AdminWindow extends JFrame {
 
     private void changePassword() {
         new ChangePasswordWindow(this, db, user);
+    }
+
+    private void clickListCars() {
+        new ListCarsAdminWindow(this, db);
     }
 }

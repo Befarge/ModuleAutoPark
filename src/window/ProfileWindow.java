@@ -186,7 +186,17 @@ public class ProfileWindow extends JDialog {
     private void clickViewCar () {
         boolean isHaveCar = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
         if (isHaveCar)
-            new ViewCarWindow(this, db, user);
+            new ViewCarWindow (
+                    this,
+                    db,
+                    db.getCarDAO().getCarById(
+                            db.getTripDAO().getTripByDriverId(
+                                    db.getDriverDAO().getDriverByUserId(
+                                            user.getId()
+                                    ).getId()
+                            ).getCarId()
+                    )
+            );
         else
             JOptionPane.showMessageDialog(
                     this,

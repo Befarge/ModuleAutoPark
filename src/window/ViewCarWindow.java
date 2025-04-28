@@ -8,11 +8,11 @@ import java.awt.*;
 
 public class ViewCarWindow extends JDialog {
     private  DatabaseConnection db;
-    private User user;
+    private Car car;
 
-    public ViewCarWindow(JDialog parent, DatabaseConnection db, User user) {
+    public ViewCarWindow(JDialog parent, DatabaseConnection db, Car car) {
         super(parent, "Информация о машине", true);
-        this.user = user;
+        this.car = car;
         this.db = db;
         setSize(400, 300);
         setResizable(false);
@@ -24,14 +24,6 @@ public class ViewCarWindow extends JDialog {
     }
 
     private void initUI() {
-        Car car = db.getCarDAO().getCarById(
-                db.getTripDAO().getTripByDriverId(
-                        db.getDriverDAO().getDriverByUserId(
-                                user.getId()
-                        ).getId()
-                ).getCarId()
-        );
-
         setLayout(new GridLayout(5, 2, 10, 5));
 
         add(new JLabel("Модель:"));

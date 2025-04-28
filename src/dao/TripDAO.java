@@ -163,7 +163,6 @@ public class TripDAO {
         return null;
     }
 
-    // Удалить поездку
     public void deleteTrip(int trip_id) throws SQLException {
         String sql = "DELETE FROM trips WHERE trip_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -172,6 +171,15 @@ public class TripDAO {
                 System.out.println("Удаление прошло успешно");
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void deleteTripByCar(int car_id) throws SQLException {
+        String sql = "DELETE FROM trips WHERE car_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, car_id);
+            if (stmt.executeUpdate() > 0)
+                System.out.println("Удаление прошло успешно");
         }
     }
 }

@@ -94,8 +94,6 @@ public class CarDAO {
             stmt.setInt(1, car_id);
             if (stmt.executeUpdate() > 0)
                 System.out.println("Машина была успешно удалена");
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
