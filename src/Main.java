@@ -1,8 +1,6 @@
 import db.ConfigReader;
 import db.DatabaseConnection;
-import entity.Trip;
-import window.MainWindow;
-
+import window.LoginWindow;
 import javax.swing.*;
 import java.sql.SQLException;
 
@@ -13,14 +11,7 @@ public class Main {
 
         // Запускаем GUI в потоке событий Swing
         SwingUtilities.invokeLater(() -> {
-            try {
-                new MainWindow(
-                        db,
-                        db.getUserDAO().getUserByLogin("venikov")
-                );
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            new LoginWindow(db);
         });
 
 //        db.getTripDAO().addTrip(new Trip(

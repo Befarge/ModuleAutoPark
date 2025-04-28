@@ -1,6 +1,6 @@
 package db;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigReader {
@@ -8,7 +8,10 @@ public class ConfigReader {
 
     public ConfigReader(String filePath) {
         properties = new Properties();
-        try (FileInputStream input = new FileInputStream(filePath)) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(filePath)) {
+            if (input == null) {
+                throw new IOException("Файл config.properties не найден в ресурсах");
+            }
             properties.load(input);
         } catch (IOException e) {
             e.printStackTrace();
