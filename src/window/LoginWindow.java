@@ -2,6 +2,8 @@ package window;
 import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
+import types.UserRole;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -78,7 +80,10 @@ public class LoginWindow extends JFrame {
                                 "Успешный вход! Добро пожаловать"
                         );
 
-                        new MainWindow(db, user);
+                        if (user.getRole() == UserRole.ADMIN)
+                            new AdminWindow(db, user);
+                        else if (user.getRole() == UserRole.USER)
+                            new MainWindow(db, user);
                         dispose();
                     } else {
                         JOptionPane.showMessageDialog(
