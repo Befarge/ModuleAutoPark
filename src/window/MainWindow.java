@@ -15,7 +15,7 @@ public class MainWindow extends JFrame {
         this.user = user;
 
         setTitle("Главное окно");
-        setSize(200, 200);
+        setSize(300, 200);
         setResizable(false);
         setLocationRelativeTo(null); // центр экрана
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
