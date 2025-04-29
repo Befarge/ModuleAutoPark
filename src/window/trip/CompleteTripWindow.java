@@ -1,4 +1,4 @@
-package window;
+package window.trip;
 
 import customException.*;
 import db.DatabaseConnection;

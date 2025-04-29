@@ -1,4 +1,4 @@
-package window;
+package window.user;
 import customException.NullException;
 import db.DatabaseConnection;
 import entity.User;

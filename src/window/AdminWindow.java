@@ -1,6 +1,9 @@
 package window;
 import db.DatabaseConnection;
 import entity.User;
+import window.car.ListCarsAdminWindow;
+import window.user.ChangePasswordWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;

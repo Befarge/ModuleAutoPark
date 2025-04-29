@@ -1,4 +1,5 @@
-package window;
+package window.car;
+import customException.InactionException;
 import db.DatabaseConnection;
 import entity.Car;
 import types.SearchCriterionCar;
@@ -12,12 +13,14 @@ import java.util.List;
 
 public class ListCarsAdminWindow extends JDialog {
     private DatabaseConnection db;
+    private List<Car> cars;
+    private DefaultListModel<String> listModel;
 
     public ListCarsAdminWindow(Window parent, DatabaseConnection db) {
         super((Frame) parent, "Список машин", true);
         this.db = db;
 
-        setSize(500, 500);
+        setSize(700, 500);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -25,6 +28,15 @@ public class ListCarsAdminWindow extends JDialog {
         initUI();
 
         setVisible(true);
+    }
+
+    private void updateWindow() {
+        cars = db.getCarDAO().getAllCars();
+        listModel.clear();
+
+        for (Car car : cars) {
+            listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+        }
     }
 
     private void initUI() {
@@ -46,10 +58,10 @@ public class ListCarsAdminWindow extends JDialog {
         searchPanel.add(searchButton);
 
         // Список для вывода результатов
-        DefaultListModel<String> listModel = new DefaultListModel<>();
+        listModel = new DefaultListModel<>();
         JList<String> resultList = new JList<>(listModel);
 
-        List<Car> cars = db.getCarDAO().getAllCars();
+        cars = db.getCarDAO().getAllCars();
         for (Car car : cars) {
             listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
         }
@@ -61,6 +73,9 @@ public class ListCarsAdminWindow extends JDialog {
         JPanel actionPanel = new JPanel(new FlowLayout());
         JButton infoButton = new JButton("Посмотреть информацию");
         JButton deleteButton = new JButton("Удалить");
+        JButton editButton = new JButton("Редактировать");
+        JButton addButton = new JButton("Добавить машину");
+
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -72,8 +87,13 @@ public class ListCarsAdminWindow extends JDialog {
                             int car_id = cars.get(selectedIndex).getId();
                             db.getTripDAO().deleteTripByCar(car_id);
                             db.getCarDAO().deleteCar(car_id);
-                            listModel.remove(selectedIndex);
                             db.commit();
+                        } catch (InactionException ex) {
+                            JOptionPane.showMessageDialog(
+                                    ListCarsAdminWindow.this,
+                                    "Данная машина не существует.",
+                                    "Ошибка", JOptionPane.ERROR_MESSAGE
+                            );
                         } catch (SQLException ex) {
                             ex.printStackTrace();
                             JOptionPane.showMessageDialog(
@@ -92,6 +112,7 @@ public class ListCarsAdminWindow extends JDialog {
                 } else {
                     JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для удаления.");
                 }
+                updateWindow();
             }
         });
 
@@ -100,16 +121,25 @@ public class ListCarsAdminWindow extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = resultList.getSelectedIndex();
                 if (selectedIndex != -1) {
-                    new ViewCarWindow(ListCarsAdminWindow.this, db, cars.get(selectedIndex));
+                    if (db.getCarDAO().getCarById(cars.get(selectedIndex).getId()) == null)
+                        JOptionPane.showMessageDialog(
+                                ListCarsAdminWindow.this,
+                                "Данная машина не существует.",
+                                "Ошибка", JOptionPane.ERROR_MESSAGE
+                        );
+                    else
+                        new ViewCarWindow(ListCarsAdminWindow.this, db, cars.get(selectedIndex));
                 } else {
                     JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для удаления.");
                 }
+                updateWindow();
             }
         });
 
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                updateWindow();
                 String searchText = searchField.getText();
                 SearchCriterionCar selectedCriterion = (SearchCriterionCar) searchCriteria.getSelectedItem();
 
@@ -159,9 +189,41 @@ public class ListCarsAdminWindow extends JDialog {
             }
         });
 
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedIndex = resultList.getSelectedIndex();
+                if (selectedIndex != -1) {
+                    if (db.getCarDAO().getCarById(cars.get(selectedIndex).getId()) == null)
+                        JOptionPane.showMessageDialog(
+                                ListCarsAdminWindow.this,
+                                "Данная машина не существует.",
+                                "Ошибка", JOptionPane.ERROR_MESSAGE
+                        );
+                    else {
+                        Car car = cars.get(selectedIndex);
+                        new EditCarWindow(ListCarsAdminWindow.this, db, car);
+                        listModel.set(selectedIndex, "Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для редактирования.");
+                }
+                updateWindow();
+            }
+        });
+
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new AddCarWindow(ListCarsAdminWindow.this, db, cars, listModel);
+                updateWindow();
+            }
+        });
 
         actionPanel.add(infoButton);
         actionPanel.add(deleteButton);
+        actionPanel.add(editButton);
+        actionPanel.add(addButton);
 
         // Добавляем панель на окно
         add(searchPanel, BorderLayout.NORTH);

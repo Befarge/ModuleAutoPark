@@ -1,8 +1,10 @@
-package window;
+package window.user;
 import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
 import types.UserRole;
+import window.AdminWindow;
+import window.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;

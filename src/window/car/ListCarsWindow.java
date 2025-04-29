@@ -1,4 +1,4 @@
-package window;
+package window.car;
 import db.DatabaseConnection;
 import entity.Car;
 import entity.Driver;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public class ListCarWindow extends JDialog {
+public class ListCarsWindow extends JDialog {
     private DatabaseConnection db;
     private List<Car> cars;
     private DefaultListModel<String> listModel;
@@ -19,7 +19,7 @@ public class ListCarWindow extends JDialog {
     private User user;
 
 
-    public ListCarWindow(JFrame parent, DatabaseConnection db, User user) {
+    public ListCarsWindow(JFrame parent, DatabaseConnection db, User user) {
         super(parent, "Выбор машины", true);
         this.db = db;
         this.user = user;

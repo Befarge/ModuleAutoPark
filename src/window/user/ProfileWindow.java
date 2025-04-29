@@ -1,11 +1,11 @@
-package window;
+package window.user;
 
 import customException.*;
 import db.DatabaseConnection;
 import entity.Driver;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
-import types.UserRole;
+import window.car.ViewCarWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -186,7 +186,7 @@ public class ProfileWindow extends JDialog {
     private void clickViewCar () {
         boolean isHaveCar = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
         if (isHaveCar)
-            new ViewCarWindow (
+            new ViewCarWindow(
                     this,
                     db,
                     db.getCarDAO().getCarById(

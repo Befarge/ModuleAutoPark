@@ -25,6 +25,17 @@ public class Car {
         this.mileage = mileage;
         this.fuelLevel = fuelLevel;
         this.lastMaintenanceDate = lastMaintenanceDate;
+        this.isAvailable = true;
+    }
+
+    public Car(Car car) {
+        this.car_id = car.getId();
+        this.model = car.getModel();
+        this.licensePlate = car.getLicensePlate();
+        this.mileage = car.getMileage();
+        this.fuelLevel = car.getFuelLevel();
+        this.lastMaintenanceDate = car.getLastMaintenanceDate();
+        this.isAvailable = car.isAvailable();
     }
 
     // Getters & Setters
@@ -57,7 +68,7 @@ public class Car {
         this.mileage = mileage;
     }
 
-    public double getFuelLevel() {
+    public int getFuelLevel() {
         return fuelLevel;
     }
 

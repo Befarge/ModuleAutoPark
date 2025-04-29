@@ -1,4 +1,4 @@
-package window;
+package window.user;
 import customException.*;
 import db.DatabaseConnection;
 import entity.Driver;

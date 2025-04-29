@@ -1,7 +1,6 @@
-package window;
+package window.car;
 import db.DatabaseConnection;
 import entity.Car;
-import entity.User;
 
 import javax.swing.*;
 import java.awt.*;

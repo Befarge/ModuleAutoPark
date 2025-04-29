@@ -1,6 +1,10 @@
 package window;
 import db.DatabaseConnection;
 import entity.User;
+import window.car.ListCarsWindow;
+import window.trip.CompleteTripWindow;
+import window.user.ProfileWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -73,7 +77,7 @@ public class MainWindow extends JFrame {
     private void openListCar() {
         boolean isTrip = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
         if (!isTrip) {
-            new ListCarWindow(this, db, user);
+            new ListCarsWindow(this, db, user);
         } else {
             JOptionPane.showMessageDialog(
                     this,
