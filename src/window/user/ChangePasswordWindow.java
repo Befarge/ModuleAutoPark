@@ -16,7 +16,7 @@ public class ChangePasswordWindow extends JDialog {
     private DatabaseConnection db;
 
     public ChangePasswordWindow (Window parent, DatabaseConnection db, User user) {
-        super((Frame) parent, "Изменение пароля", true);
+        super(parent, "Изменение пароля", ModalityType.APPLICATION_MODAL);
         this.user = user;
         this.db = db;
         setSize(300, 150);

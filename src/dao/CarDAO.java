@@ -144,7 +144,7 @@ public class CarDAO {
 
     public List<Car> getAllCars() {
         List<Car> cars = new ArrayList<>();
-        String sql = "SELECT * FROM cars WHERE is_available = true";
+        String sql = "SELECT * FROM cars";
         try (PreparedStatement stmt = connection.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -164,5 +164,4 @@ public class CarDAO {
         }
         return cars;
     }
-
 }

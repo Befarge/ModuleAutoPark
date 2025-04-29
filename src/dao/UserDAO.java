@@ -2,7 +2,10 @@ package dao;
 import customException.*;
 import entity.User;
 import types.UserRole;
+import types.UserStatus;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO {
     private Connection connection;
@@ -13,11 +16,12 @@ public class UserDAO {
     }
 
     public Integer addUser(User user) throws SQLException {
-        String query = "INSERT INTO users (login, password, role) VALUES (?, ?, ?::user_role)";
+        String query = "INSERT INTO users (login, password, role, status) VALUES (?, ?, ?::user_role, ?::user_status)";
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getRole().toString());
+            stmt.setString(4, user.getStatus().toString());
             stmt.executeUpdate();
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next())
@@ -50,7 +54,8 @@ public class UserDAO {
                         rs.getInt("user_id"),
                         rs.getString("login"),
                         rs.getString("password"),
-                        UserRole.valueOf(rs.getString("role"))
+                        UserRole.valueOf(rs.getString("role")),
+                        UserStatus.valueOf(rs.getString("status"))
                 );
             }
             rs.close();
@@ -87,7 +92,8 @@ public class UserDAO {
                         rs.getInt("user_id"),
                         login,
                         rs.getString("password"),
-                        UserRole.valueOf(rs.getString("role"))
+                        UserRole.valueOf(rs.getString("role")),
+                        UserStatus.valueOf(rs.getString("status"))
                 );
             } else {
                 return null; // пользователь не найден
@@ -96,12 +102,13 @@ public class UserDAO {
     }
 
     public void updateUser(User user) throws SQLException {
-        String query = "UPDATE users SET login = ?, password = ?, role = ?::user_role WHERE user_id = ?";
+        String query = "UPDATE users SET login = ?, password = ?, role = ?::user_role, status = ?::user_status WHERE user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getRole().toString());
-            stmt.setInt(4, user.getId());
+            stmt.setString(4, user.getStatus().toString());
+            stmt.setInt(5, user.getId());
             stmt.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -111,5 +118,26 @@ public class UserDAO {
                 throw ex;
             }
         }
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users";
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                User user = new User(
+                        rs.getInt("user_id"),
+                        rs.getString("login"),
+                        rs.getString("password"),
+                        UserRole.valueOf(rs.getString("role")),
+                        UserStatus.valueOf(rs.getString("status"))
+                );
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 }

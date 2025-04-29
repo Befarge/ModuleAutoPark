@@ -3,6 +3,7 @@ import db.DatabaseConnection;
 import entity.User;
 import window.car.ListCarsAdminWindow;
 import window.user.ChangePasswordWindow;
+import window.user.ListUsersAdminWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,6 +41,11 @@ public class AdminWindow extends JFrame {
         listCarsButton.addActionListener(e -> clickListCars());
         panel.add(listCarsButton);
 
+        // Кнопка "Список пользователей"
+        JButton listUsersButton = new JButton("Список пользователей");
+        listUsersButton.addActionListener(e -> clickListUsers());
+        panel.add(listUsersButton);
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing (WindowEvent e) {
@@ -56,5 +62,9 @@ public class AdminWindow extends JFrame {
 
     private void clickListCars() {
         new ListCarsAdminWindow(this, db);
+    }
+
+    private void clickListUsers() {
+        new ListUsersAdminWindow(this, db);
     }
 }

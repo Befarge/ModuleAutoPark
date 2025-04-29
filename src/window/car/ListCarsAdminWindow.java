@@ -14,7 +14,7 @@ import java.util.List;
 public class ListCarsAdminWindow extends JDialog {
     private DatabaseConnection db;
     private List<Car> cars;
-    private DefaultListModel<String> listModel;
+    private DefaultListModel<Car> listModel;
 
     public ListCarsAdminWindow(Window parent, DatabaseConnection db) {
         super((Frame) parent, "Список машин", true);
@@ -35,7 +35,7 @@ public class ListCarsAdminWindow extends JDialog {
         listModel.clear();
 
         for (Car car : cars) {
-            listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+            listModel.addElement(car);
         }
     }
 
@@ -59,11 +59,11 @@ public class ListCarsAdminWindow extends JDialog {
 
         // Список для вывода результатов
         listModel = new DefaultListModel<>();
-        JList<String> resultList = new JList<>(listModel);
+        JList<Car> resultList = new JList<>(listModel);
 
         cars = db.getCarDAO().getAllCars();
         for (Car car : cars) {
-            listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+            listModel.addElement(car);
         }
 
         // Оборачиваем список в прокрутку
@@ -79,12 +79,12 @@ public class ListCarsAdminWindow extends JDialog {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = resultList.getSelectedIndex();
-                if (selectedIndex != -1) {
+                Car car = resultList.getSelectedValue();
+                if (car != null) {
                     int confirm = JOptionPane.showConfirmDialog(ListCarsAdminWindow.this, "Удалить выбранный элемент?", "Подтвердите удаление", JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
                         try {
-                            int car_id = cars.get(selectedIndex).getId();
+                            int car_id = car.getId();
                             db.getTripDAO().deleteTripByCar(car_id);
                             db.getCarDAO().deleteCar(car_id);
                             db.commit();
@@ -119,18 +119,18 @@ public class ListCarsAdminWindow extends JDialog {
         infoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = resultList.getSelectedIndex();
-                if (selectedIndex != -1) {
-                    if (db.getCarDAO().getCarById(cars.get(selectedIndex).getId()) == null)
+                Car car = resultList.getSelectedValue();
+                if (car != null) {
+                    if (db.getCarDAO().getCarById(car.getId()) == null)
                         JOptionPane.showMessageDialog(
                                 ListCarsAdminWindow.this,
                                 "Данная машина не существует.",
                                 "Ошибка", JOptionPane.ERROR_MESSAGE
                         );
                     else
-                        new ViewCarWindow(ListCarsAdminWindow.this, db, cars.get(selectedIndex));
+                        new ViewCarWindow(ListCarsAdminWindow.this, db, car);
                 } else {
-                    JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для удаления.");
+                    JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для просмотра.");
                 }
                 updateWindow();
             }
@@ -148,17 +148,17 @@ public class ListCarsAdminWindow extends JDialog {
                     case AVAILABLE -> {
                         for (Car car : cars) {
                             if (car.isAvailable())
-                                listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+                                listModel.addElement(car);
                         }
                     } case NO_AVAILABLE -> {
                         for (Car car : cars) {
                             if (!car.isAvailable())
-                                listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+                                listModel.addElement(car);
                         }
                     } case  MODEL -> {
                         for (Car car : cars) {
                             if (car.getModel().contains(searchText))
-                                listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+                                listModel.addElement(car);
                         }
                     } case FUEL -> {
                         try {
@@ -172,7 +172,7 @@ public class ListCarsAdminWindow extends JDialog {
                             }
                             for (Car car : cars) {
                                 if (car.getFuelLevel() <= number)
-                                    listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+                                    listModel.addElement(car);
                             }
                         } catch (NumberFormatException ex) {
                             ex.printStackTrace();
@@ -192,18 +192,16 @@ public class ListCarsAdminWindow extends JDialog {
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = resultList.getSelectedIndex();
-                if (selectedIndex != -1) {
-                    if (db.getCarDAO().getCarById(cars.get(selectedIndex).getId()) == null)
+                Car car = resultList.getSelectedValue();
+                if (car != null) {
+                    if (db.getCarDAO().getCarById(car.getId()) == null)
                         JOptionPane.showMessageDialog(
                                 ListCarsAdminWindow.this,
                                 "Данная машина не существует.",
                                 "Ошибка", JOptionPane.ERROR_MESSAGE
                         );
                     else {
-                        Car car = cars.get(selectedIndex);
                         new EditCarWindow(ListCarsAdminWindow.this, db, car);
-                        listModel.set(selectedIndex, "Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
                     }
                 } else {
                     JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для редактирования.");
@@ -215,7 +213,7 @@ public class ListCarsAdminWindow extends JDialog {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AddCarWindow(ListCarsAdminWindow.this, db, cars, listModel);
+                new AddCarWindow(ListCarsAdminWindow.this, db);
                 updateWindow();
             }
         });

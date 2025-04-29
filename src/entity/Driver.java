@@ -96,19 +96,8 @@ public class Driver {
         this.onTrip = onTrip;
     }
 
-    public void printInfo() {
-        System.out.printf("""
-              driver_id = %d
-              user_id = %d
-              firstName = %s
-              middleName = %s
-              lastName = %s
-              age = %d
-              phoneNumber = %s
-              onTrip = %b
-              
-              """ ,
-              driver_id, user_id, firstName, middleName, lastName, age, phoneNumber, onTrip
-        );
+    @Override
+    public String toString() {
+        return "Имя: " + firstName + ", Номер: " + phoneNumber;
     }
 }

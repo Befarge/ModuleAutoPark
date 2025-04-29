@@ -3,6 +3,7 @@ import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
 import types.UserRole;
+import types.UserStatus;
 import window.AdminWindow;
 import window.MainWindow;
 
@@ -77,6 +78,20 @@ public class LoginWindow extends JFrame {
 
                 if (user != null) {
                     if (user.getPassword().equals(password)) {
+                        if (user.getStatus() == UserStatus.BLOCKED) {
+                            JOptionPane.showMessageDialog(
+                                    LoginWindow.this,
+                                    "Ваш аккаунт заблокирован"
+                            );
+                            return;
+                        } else if (user.getStatus() == UserStatus.WAIT) {
+                            JOptionPane.showMessageDialog(
+                                    LoginWindow.this,
+                                    "Ваш аккаунт не подтвержден"
+                            );
+                            return;
+                        }
+
                         JOptionPane.showMessageDialog(
                                 LoginWindow.this,
                                 "Успешный вход! Добро пожаловать"

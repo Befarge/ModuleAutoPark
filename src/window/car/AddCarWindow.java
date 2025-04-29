@@ -19,7 +19,7 @@ public class AddCarWindow extends JDialog {
     private JTextField lastMaintenanceDateField;
     private JButton saveButton;
 
-    public AddCarWindow(JDialog parent, DatabaseConnection db, List<Car> cars, DefaultListModel<String> listModel) {
+    public AddCarWindow(JDialog parent, DatabaseConnection db) {
         super(parent, "Добавление машины", true);
         this.db = db;
         setSize(400, 300);

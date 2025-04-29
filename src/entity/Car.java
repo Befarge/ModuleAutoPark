@@ -92,18 +92,8 @@ public class Car {
         isAvailable = available;
     }
 
-    public void printInfo() {
-        System.out.printf("""
-              car_id = %d
-              model = %s
-              licensePlate = %s
-              mileage = %d
-              fuelLevel = %d
-              lastMaintenanceDate = %s
-              isAvailable = %b
-              
-              """ ,
-              car_id, model, licensePlate, mileage, fuelLevel, lastMaintenanceDate, isAvailable
-        );
+    @Override
+    public String toString() {
+        return "Модель: " + model + ", Номер: " + licensePlate;
     }
 }
