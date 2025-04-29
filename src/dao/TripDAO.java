@@ -1,7 +1,10 @@
 package dao;
 import customException.*;
+import entity.Car;
 import entity.Trip;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TripDAO {
     private final Connection connection;
@@ -181,5 +184,28 @@ public class TripDAO {
             if (stmt.executeUpdate() > 0)
                 System.out.println("Удаление прошло успешно");
         }
+    }
+
+    public List<Trip> getAllTrip() {
+        List<Trip> trips = new ArrayList<>();
+        String sql = "SELECT * FROM trips";
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Trip car = new Trip(
+                        rs.getInt("trip_id"),
+                        rs.getInt("driver_id"),
+                        rs.getInt("car_id"),
+                        rs.getString("start_time"),
+                        rs.getString("end_time"),
+                        rs.getInt("distance"),
+                        rs.getInt("fuel_used")
+                );
+                trips.add(car);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trips;
     }
 }

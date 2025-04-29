@@ -2,6 +2,7 @@ package window;
 import db.DatabaseConnection;
 import entity.User;
 import window.car.ListCarsAdminWindow;
+import window.trip.ListTripWindow;
 import window.user.ChangePasswordWindow;
 import window.user.ListUsersAdminWindow;
 
@@ -19,7 +20,7 @@ public class AdminWindow extends JFrame {
         this.user = user;
 
         setTitle("Пункт управления");
-        setSize(400, 300);
+        setSize(400, 400);
         setResizable(false);
         setLocationRelativeTo(null); // центр экрана
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -29,7 +30,7 @@ public class AdminWindow extends JFrame {
     }
 
     private void initUI() {
-        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
 
         // Кнопка "Личный кабинет"
         JButton changePasswordButton = new JButton("Изменить пароль");
@@ -45,6 +46,11 @@ public class AdminWindow extends JFrame {
         JButton listUsersButton = new JButton("Список пользователей");
         listUsersButton.addActionListener(e -> clickListUsers());
         panel.add(listUsersButton);
+
+        // Кнопка "История поездок"
+        JButton listTripsButton = new JButton("История поездок");
+        listTripsButton.addActionListener(e -> clickListTrips());
+        panel.add(listTripsButton);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -66,5 +72,9 @@ public class AdminWindow extends JFrame {
 
     private void clickListUsers() {
         new ListUsersAdminWindow(this, db);
+    }
+
+    private void clickListTrips() {
+        new ListTripWindow(this, db);
     }
 }

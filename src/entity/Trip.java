@@ -82,16 +82,8 @@ public class Trip {
         this.fuelUsed = fuelUsed;
     }
 
-    public void printInfo() {
-        System.out.printf("""
-                trip_id = %d
-                car_id = %d
-                driver_id = %d
-                start_time = %s
-                end_time = %s
-                distance = %d
-                fuel_used = %d
-                """, trip_id, car_id, driver_id, startTime, endTime, distance, fuelUsed
-        );
+    @Override
+    public String toString() {
+        return "Начало: " + startTime.substring(0,16) + ", Конец: " + endTime.substring(0,16);
     }
 }
