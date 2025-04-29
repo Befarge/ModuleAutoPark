@@ -1,4 +1,5 @@
 package window.car;
+import customException.InactionException;
 import db.DatabaseConnection;
 import entity.Car;
 import entity.Driver;
@@ -7,6 +8,8 @@ import entity.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,8 +17,7 @@ import java.util.List;
 public class ListCarsWindow extends JDialog {
     private DatabaseConnection db;
     private List<Car> cars;
-    private DefaultListModel<String> listModel;
-    private JList<String> carList;
+    private DefaultListModel<Car> listModel;
     private User user;
 
 
@@ -32,6 +34,15 @@ public class ListCarsWindow extends JDialog {
         setVisible(true);
     }
 
+    private void updateWindow() {
+        cars = db.getCarDAO().getAllCars();
+        listModel.clear();
+
+        for (Car car : cars) {
+            listModel.addElement(car);
+        }
+    }
+
     private void initUI () {
         // Получение списка машин из базы данных
         cars = db.getCarDAO().getAllCars(); // Предполагается, что метод возвращает List<Car>
@@ -46,86 +57,77 @@ public class ListCarsWindow extends JDialog {
             return;
         }
 
-        // Инициализация модели для JList
         listModel = new DefaultListModel<>();
+        JList<Car> resultList = new JList<>(listModel);
+
+        cars = db.getCarDAO().getAllCars();
         for (Car car : cars) {
-            listModel.addElement("Модель: " + car.getModel() + ", Номер: " + car.getLicensePlate());
+            listModel.addElement(car);
         }
 
-        // Создание JList
-        carList = new JList<>(listModel);
-        carList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Разрешаем выбирать только одну машину
-        carList.setVisibleRowCount(10); // Количество видимых строк
+        // Оборачиваем список в прокрутку
+        JScrollPane scrollPane = new JScrollPane(resultList);
 
-        // Добавление прокрутки
-        JScrollPane scrollPane = new JScrollPane(carList);
-        scrollPane.setPreferredSize(new Dimension(350, 200));
+        // Нижняя панель с кнопками управления
+        JPanel actionPanel = new JPanel(new FlowLayout());
+        JButton infoButton = new JButton("Выбрать");
+        actionPanel.add(infoButton);
 
-        // Панель для списка
-        JPanel listPanel = new JPanel(new BorderLayout());
-        listPanel.add(new JLabel("Выберите машину:"), BorderLayout.NORTH);
-        listPanel.add(scrollPane, BorderLayout.CENTER);
+        infoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedIndex = resultList.getSelectedIndex();
+                if (selectedIndex == -1) {
+                    JOptionPane.showMessageDialog(
+                            ListCarsWindow.this,
+                            "Пожалуйста, выберите машину",
+                            "Предупреждение",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    return;
+                }
 
-        // Кнопка "Выбрать"
-        JButton selectButton = new JButton("Выбрать");
-        selectButton.addActionListener(e -> selectedCar());
+                int result = JOptionPane.showConfirmDialog(
+                        ListCarsWindow.this,
+                        "Вы точно хотите выбрать эту машину ?",
+                        "Подтверждение",
+                        JOptionPane.YES_NO_OPTION
+                );
 
-        // Панель для кнопок
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(selectButton);
+                if (result == JOptionPane.NO_OPTION) {
+                    return;
+                }
 
-        // Основная компоновка
-        setLayout(new BorderLayout(10, 10));
-        add(listPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-    }
+                Car car = cars.get(selectedIndex);
+                Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
+                try {
+                    db.getTripDAO().addTrip(new Trip(
+                            driver.getId(),
+                            car.getId()
+                    ));
+                    car.setAvailable(false);
+                    driver.setOnTrip(true);
 
-    private void selectedCar() {
-        int selectedIndex = carList.getSelectedIndex();
-        if (selectedIndex == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Пожалуйста, выберите машину",
-                    "Предупреждение",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
+                    db.getCarDAO().updateCar(car);
+                    db.getDriverDAO().updateDriver(driver);
 
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                "Вы точно хотите выбрать эту машину ?",
-                "Подтверждение",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (result == JOptionPane.NO_OPTION) {
-            return;
-        }
-
-        Car car = cars.get(selectedIndex);
-        Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
-        try {
-            db.getTripDAO().addTrip(new Trip(
-                    driver.getId(),
-                    car.getId()
-            ));
-            car.setAvailable(false);
-            driver.setOnTrip(true);
-
-            db.getCarDAO().updateCar(car);
-            db.getDriverDAO().updateDriver(driver);
-
-            db.commit();
-            dispose();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                db.getConnection().rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                    db.commit();
+                    dispose();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                } finally {
+                    try {
+                        db.getConnection().rollback();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                updateWindow();
             }
-        }
+        });
+
+        // Добавляем панель на окно
+        add(scrollPane, BorderLayout.CENTER);
+        add(actionPanel, BorderLayout.SOUTH);
     }
 }
