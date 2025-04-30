@@ -5,6 +5,7 @@ import db.DatabaseConnection;
 import entity.Driver;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
+import types.SecureActionListener;
 import window.car.ViewCarWindow;
 
 import javax.swing.*;
@@ -65,19 +66,19 @@ public class ProfileWindow extends JDialog {
         add(phoneField);
 
         saveButton = new JButton("Сохранить");
-        saveButton.addActionListener(e -> onSave());
+        saveButton.addActionListener(new SecureActionListener(user, db,e -> onSave()));
         add(saveButton);
 
         changePassword = new JButton("Изменить пароль");
-        changePassword.addActionListener(e -> clickChangePassword());
+        changePassword.addActionListener(new SecureActionListener(user, db, e -> clickChangePassword()));
         add(changePassword);
 
         quitAccount = new JButton("Выйти из аккаунта");
-        quitAccount.addActionListener(e -> clickQuitAccount());
+        quitAccount.addActionListener(new SecureActionListener(user, db,e -> clickQuitAccount()));
         add(quitAccount);
 
         viewCar = new JButton("Текущая машина");
-        viewCar.addActionListener(e -> clickViewCar());
+        viewCar.addActionListener(new SecureActionListener(user, db,e -> clickViewCar()));
         add(viewCar);
     }
 

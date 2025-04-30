@@ -3,6 +3,7 @@ import customException.NullException;
 import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
+import types.SecureActionListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,11 +37,11 @@ public class ChangePasswordWindow extends JDialog {
         add(passwordField);
 
         saveButton = new JButton("Сохранить");
-        saveButton.addActionListener(e -> onSave());
+        saveButton.addActionListener(new SecureActionListener(user, db, e -> onSave()));
         add(saveButton);
 
         closeButton = new JButton("Отмена");
-        closeButton.addActionListener(e -> dispose());
+        closeButton.addActionListener(new SecureActionListener(user, db,e -> dispose()));
         add(closeButton);
     }
 

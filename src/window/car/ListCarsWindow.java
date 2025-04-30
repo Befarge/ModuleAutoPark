@@ -5,6 +5,7 @@ import entity.Car;
 import entity.Driver;
 import entity.Trip;
 import entity.User;
+import types.SecureActionListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,9 +74,7 @@ public class ListCarsWindow extends JDialog {
         JButton infoButton = new JButton("Выбрать");
         actionPanel.add(infoButton);
 
-        infoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        infoButton.addActionListener(new SecureActionListener(user, db, e -> {
                 int selectedIndex = resultList.getSelectedIndex();
                 if (selectedIndex == -1) {
                     JOptionPane.showMessageDialog(
@@ -124,7 +123,7 @@ public class ListCarsWindow extends JDialog {
                 }
                 updateWindow();
             }
-        });
+        ));
 
         // Добавляем панель на окно
         add(scrollPane, BorderLayout.CENTER);

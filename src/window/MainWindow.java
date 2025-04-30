@@ -1,8 +1,12 @@
 package window;
 import db.DatabaseConnection;
+import entity.Driver;
 import entity.User;
+import types.SecureActionListener;
+import types.UserStatus;
 import window.car.ListCarsWindow;
 import window.trip.CompleteTripWindow;
+import window.user.LoginWindow;
 import window.user.ProfileWindow;
 
 import javax.swing.*;
@@ -33,17 +37,35 @@ public class MainWindow extends JFrame {
 
         // Кнопка "Личный кабинет"
         JButton personalCabinetButton = new JButton("Личный кабинет");
-        personalCabinetButton.addActionListener(e -> openPersonalCabinet());
+        personalCabinetButton.addActionListener(new SecureActionListener(user, db,e -> openPersonalCabinet()));
         panel.add(personalCabinetButton);
 
         //Кнопка "Взять машину"
         JButton listCarButton = new JButton("Взять машину");
-        listCarButton.addActionListener(e -> openListCar());
+        listCarButton.addActionListener(new SecureActionListener(user, db, e -> openListCar()));
         panel.add(listCarButton);
 
         //Кнопка "Завершить поездку"
         JButton endTheTripButton = new JButton("Завершить поездку");
-        endTheTripButton.addActionListener(e -> openEndTheTrip());
+        endTheTripButton.addActionListener(e -> {
+            User user = db.getUserDAO().getUserById(this.user.getId());
+            Driver driver = db.getDriverDAO().getDriverByUserId(this.user.getId());
+
+            if (user.getStatus() == UserStatus.BLOCKED && !driver.isOnTrip()) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Ваша учётная запись заблокирована. Действие запрещено.",
+                        "Блокировка", javax.swing.JOptionPane.ERROR_MESSAGE
+                );
+
+                for (Window window : Window.getWindows()) {
+                    window.dispose();
+                }
+
+                new LoginWindow(db);
+            }
+            openEndTheTrip();
+        });
         panel.add(endTheTripButton);
 
         addWindowListener(new WindowAdapter() {
