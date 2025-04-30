@@ -5,6 +5,7 @@ import db.DatabaseConnection;
 import entity.Driver;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
+import types.SessionManager;
 import window.car.ViewCarWindow;
 
 import javax.swing.*;
@@ -17,19 +18,12 @@ public class ProfileWindow extends JDialog {
     private JTextField lastNameField;
     private JTextField ageField;
     private JTextField phoneField;
-    private JButton saveButton;
-    private JButton changePassword;
-    private JButton quitAccount;
-    private JButton viewCar;
     private DatabaseConnection db;
-    private JFrame parent;
-    private User user;
 
     public ProfileWindow(JFrame parent, DatabaseConnection db, User user) {
         super(parent, "Личный кабинет", true);
-        this.parent = parent;
-        this.user = user;
         this.db = db;
+
         setSize(400, 300);
         setResizable(false);
         setLocationRelativeTo(null);
@@ -40,7 +34,7 @@ public class ProfileWindow extends JDialog {
     }
 
     private void initUI() {
-        Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
+        Driver driver = SessionManager.getDriver();
 
         setLayout(new GridLayout(7, 2, 10, 5));
 
@@ -64,39 +58,40 @@ public class ProfileWindow extends JDialog {
         phoneField = new JTextField(driver.getPhoneNumber());
         add(phoneField);
 
-        saveButton = new JButton("Сохранить");
+        JButton saveButton = new JButton("Сохранить");
         saveButton.addActionListener(e -> onSave());
         add(saveButton);
 
-        changePassword = new JButton("Изменить пароль");
+        JButton changePassword = new JButton("Изменить пароль");
         changePassword.addActionListener(e -> clickChangePassword());
         add(changePassword);
 
-        quitAccount = new JButton("Выйти из аккаунта");
+        JButton quitAccount = new JButton("Выйти из аккаунта");
         quitAccount.addActionListener(e -> clickQuitAccount());
         add(quitAccount);
 
-        viewCar = new JButton("Текущая машина");
+        JButton viewCar = new JButton("Текущая машина");
         viewCar.addActionListener(e -> clickViewCar());
         add(viewCar);
     }
 
     private void onSave() {
-        String firstName = StringUtils.trimToNull(firstNameField.getText());
-        String middleName = StringUtils.trimToNull(middleNameField.getText());
-        String lastName = StringUtils.trimToNull(lastNameField.getText());
-        String ageText = StringUtils.trimToNull(ageField.getText());
-        String phone = StringUtils.trimToNull(phoneField.getText());
-
         try {
-            Driver driver = db.getDriverDAO().getDriverByUserId(user.getId());
-            driver.setFirstName(firstName);
-            driver.setMiddleName(middleName);
-            driver.setLastName(lastName);
-            driver.setAge(Integer.parseInt(ageText));
-            driver.setPhoneNumber(phone);
+            String firstName = StringUtils.trimToNull(firstNameField.getText());
+            String middleName = StringUtils.trimToNull(middleNameField.getText());
+            String lastName = StringUtils.trimToNull(lastNameField.getText());
+            int age = Integer.parseInt(StringUtils.trimToNull(ageField.getText()));
+            String phone = StringUtils.trimToNull(phoneField.getText());
 
-            db.getDriverDAO().updateDriver(driver);
+            db.getDriverDAO().updateDriver(
+                    SessionManager.getDriver().
+                            setFirstName(firstName).
+                            setMiddleName(middleName).
+                            setLastName(lastName).
+                            setAge(age).
+                            setPhoneNumber(phone)
+            );
+
             db.commit();
 
             JOptionPane.showMessageDialog(this, "Данные сохранены");
@@ -174,29 +169,18 @@ public class ProfileWindow extends JDialog {
     }
 
     private void clickChangePassword () {
-        new ChangePasswordWindow(this, db, user);
+        new ChangePasswordWindow(this, db);
     }
 
     private void clickQuitAccount () {
         new LoginWindow(db);
-        parent.dispose();
+        this.getOwner().dispose();
         dispose();
     }
 
     private void clickViewCar () {
-        boolean isHaveCar = db.getDriverDAO().getDriverByUserId(user.getId()).isOnTrip();
-        if (isHaveCar)
-            new ViewCarWindow(
-                    this,
-                    db,
-                    db.getCarDAO().getCarById(
-                            db.getTripDAO().getTripByDriverId(
-                                    db.getDriverDAO().getDriverByUserId(
-                                            user.getId()
-                                    ).getId()
-                            ).getCarId()
-                    )
-            );
+        if (SessionManager.checkOnTrip())
+            new ViewCarWindow(this, db);
         else
             JOptionPane.showMessageDialog(
                     this,

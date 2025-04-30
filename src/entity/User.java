@@ -39,31 +39,40 @@ public class User {
         return id;
     }
 
-    public void setId(int id) {
+    public User setId(int id) {
         this.id = id;
+        return this;
     }
 
     public String getLogin() {
         return login;
     }
 
-    public void setLogin(String login) {
+    public User setLogin(String login) {
         this.login = login;
+        return this;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public User setPassword(String password) {
         this.password = password;
+        return this;
     }
 
     public UserRole getRole() { return role; }
 
-    public void setRole(UserRole role) { this.role = role; }
+    public User setRole(UserRole role) {
+        this.role = role;
+        return this;
+    }
 
     public UserStatus getStatus() { return status; }
 
-    public void setStatus (UserStatus status) { this.status = status; }
+    public User setStatus (UserStatus status) {
+        this.status = status;
+        return this;
+    }
 }

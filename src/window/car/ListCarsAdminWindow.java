@@ -128,7 +128,7 @@ public class ListCarsAdminWindow extends JDialog {
                                 "Ошибка", JOptionPane.ERROR_MESSAGE
                         );
                     else
-                        new ViewCarWindow(ListCarsAdminWindow.this, db, car);
+                        new ViewCarWindow(ListCarsAdminWindow.this, db);
                 } else {
                     JOptionPane.showMessageDialog(ListCarsAdminWindow.this, "Сначала выберите элемент для просмотра.");
                 }

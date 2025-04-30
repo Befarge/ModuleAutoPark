@@ -3,14 +3,12 @@ import customException.UnsuccessfulValidationException;
 import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
-import types.UserRole;
+import types.SessionManager;
 import types.UserStatus;
 import window.AdminWindow;
-import window.MainWindow;
+import window.UserWindow;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 
 public class LoginWindow extends JFrame {
@@ -90,11 +88,12 @@ public class LoginWindow extends JFrame {
                                 "Успешный вход! Добро пожаловать"
                         );
 
+                        SessionManager.setUser(user, db);
                         switch (user.getRole()) {
                             case USER -> {
-                                new MainWindow(db, user);
+                                new UserWindow(db);
                             } case ADMIN -> {
-                                new AdminWindow(db, user);
+                                //new AdminWindow(db);
                             } case MANAGER -> {
                                 JOptionPane.showMessageDialog(
                                         LoginWindow.this,

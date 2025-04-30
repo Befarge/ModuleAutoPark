@@ -1,6 +1,7 @@
 package window.car;
 import db.DatabaseConnection;
 import entity.Car;
+import types.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,9 +10,9 @@ public class ViewCarWindow extends JDialog {
     private  DatabaseConnection db;
     private Car car;
 
-    public ViewCarWindow(JDialog parent, DatabaseConnection db, Car car) {
+    public ViewCarWindow(JDialog parent, DatabaseConnection db) {
         super(parent, "Информация о машине", true);
-        this.car = car;
+        this.car = SessionManager.getCar();
         this.db = db;
         setSize(400, 300);
         setResizable(false);

@@ -63,7 +63,7 @@ public class AdminWindow extends JFrame {
     }
 
     private void changePassword() {
-        new ChangePasswordWindow(this, db, user);
+        new ChangePasswordWindow(this, db);
     }
 
     private void clickListCars() {

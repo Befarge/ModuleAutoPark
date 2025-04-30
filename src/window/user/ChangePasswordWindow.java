@@ -1,23 +1,19 @@
 package window.user;
 import customException.NullException;
 import db.DatabaseConnection;
-import entity.User;
 import org.apache.commons.lang3.StringUtils;
+import types.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 
 public class ChangePasswordWindow extends JDialog {
-    private JButton saveButton;
-    private JButton closeButton;
     private JPasswordField passwordField;
-    private User user;
     private DatabaseConnection db;
 
-    public ChangePasswordWindow (Window parent, DatabaseConnection db, User user) {
+    public ChangePasswordWindow (Window parent, DatabaseConnection db) {
         super(parent, "Изменение пароля", ModalityType.APPLICATION_MODAL);
-        this.user = user;
         this.db = db;
         setSize(300, 150);
         setResizable(false);
@@ -35,24 +31,22 @@ public class ChangePasswordWindow extends JDialog {
         passwordField = new JPasswordField();
         add(passwordField);
 
-        saveButton = new JButton("Сохранить");
+        JButton saveButton = new JButton("Сохранить");
         saveButton.addActionListener(e -> onSave());
         add(saveButton);
 
-        closeButton = new JButton("Отмена");
+        JButton closeButton = new JButton("Отмена");
         closeButton.addActionListener(e -> dispose());
         add(closeButton);
     }
 
     private void onSave() {
-        String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
-        User temp_user = db.getUserDAO().getUserById(user.getId());
-        temp_user.setPassword(password);
-
         try {
-            db.getUserDAO().updateUser(temp_user);
+            String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
+            db.getUserDAO().updateUser(SessionManager.getCopyUser().setPassword(password));
+
             db.commit();
-            user.setPassword(password);
+            SessionManager.getUser().setPassword(password);
             JOptionPane.showMessageDialog(this, "Пароль изменен.");
             dispose();
         } catch (NullException ex) {
@@ -69,12 +63,6 @@ public class ChangePasswordWindow extends JDialog {
                     "Ошибка",
                     JOptionPane.ERROR_MESSAGE
             );
-        } finally {
-            try {
-                db.getConnection().rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 }

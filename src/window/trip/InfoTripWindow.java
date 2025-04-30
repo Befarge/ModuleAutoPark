@@ -60,11 +60,7 @@ public class InfoTripWindow extends JDialog {
         infoCar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ViewCarWindow(
-                        InfoTripWindow.this,
-                        db,
-                        db.getCarDAO().getCarById(trip.getCarId())
-                );
+                new ViewCarWindow(InfoTripWindow.this, db);
             }
         });
 

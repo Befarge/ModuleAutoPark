@@ -36,64 +36,67 @@ public class Driver {
         return driver_id;
     }
 
-    public void setId(int driver_id) {
-        this.driver_id = driver_id;
-    }
-
     public Integer getUserId() {
         return user_id;
     }
 
-    public void setUserId(int user_id) {
+    public Driver setUserId(int user_id) {
         this.user_id = user_id;
+        return this;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public Driver setLastName(String lastName) {
         this.lastName = lastName;
+        return this;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public Driver setFirstName(String firstName) {
         this.firstName = firstName;
+        return this;
     }
 
     public String getMiddleName() {
         return middleName;
     }
 
-    public void setMiddleName(String middleName) {
+    public Driver setMiddleName(String middleName) {
         this.middleName = middleName;
+        return this;
     }
 
     public int getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public Driver setAge(int age) {
         this.age = age;
+        return this;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
+    public Driver setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+        return this;
     }
 
     public boolean isOnTrip() {
         return onTrip;
     }
 
-    public void setOnTrip(boolean onTrip) {
+    public Driver setOnTrip(boolean onTrip) {
         this.onTrip = onTrip;
+        return this;
     }
 
     @Override
