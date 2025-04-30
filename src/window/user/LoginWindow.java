@@ -1,4 +1,5 @@
 package window.user;
+import customException.UnsuccessfulValidationException;
 import db.DatabaseConnection;
 import entity.User;
 import org.apache.commons.lang3.StringUtils;
@@ -6,7 +7,6 @@ import types.UserRole;
 import types.UserStatus;
 import window.AdminWindow;
 import window.MainWindow;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -16,12 +16,11 @@ import java.sql.SQLException;
 public class LoginWindow extends JFrame {
     private JTextField loginField;
     private JPasswordField passwordField;
-    private JButton loginButton;
-    private JButton registerButton;
-    private DatabaseConnection db;
+    private final DatabaseConnection db;
 
     public LoginWindow(DatabaseConnection db) {
         this.db = db;
+
         setTitle("Авторизация");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(300, 200);
@@ -43,87 +42,93 @@ public class LoginWindow extends JFrame {
         passwordField = new JPasswordField();
         panel.add(passwordField);
 
-        loginButton = new JButton("Войти");
-        loginButton.addActionListener( e -> actionPerformed());
+        JButton loginButton = new JButton("Войти");
+        loginButton.addActionListener(e -> logIn());
 
-        registerButton = new JButton("Зарегистрироваться");
-        registerButton.addActionListener(e -> actionRegistration());
+        JButton registerButton = new JButton("Зарегистрироваться");
+        registerButton.addActionListener(e -> callRegistrationWindow());
 
         panel.add(loginButton);
         panel.add(registerButton);
 
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                db.close();
-            }
-        });
-
         add(panel);
     }
 
-    public void actionPerformed() {
+    public void logIn() {
         String login = StringUtils.trimToNull(loginField.getText());
         String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
 
+        if (login == null || password == null) {
+            JOptionPane.showMessageDialog(LoginWindow.this,
+                    "Введите логин и пароль",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         try {
-            if (login == null || password == null) {
-                JOptionPane.showMessageDialog(LoginWindow.this,
-                        "Введите логин и пароль",
-                        "Ошибка",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            } else {
-                User user = db.getUserDAO().getUserByLogin(login);
+            User user = db.getUserDAO().getUserByLogin(login);
 
-                if (user != null) {
-                    if (user.getPassword().equals(password)) {
-                        if (user.getStatus() == UserStatus.BLOCKED) {
-                            JOptionPane.showMessageDialog(
-                                    LoginWindow.this,
-                                    "Ваш аккаунт заблокирован"
-                            );
-                            return;
-                        } else if (user.getStatus() == UserStatus.WAIT) {
-                            JOptionPane.showMessageDialog(
-                                    LoginWindow.this,
-                                    "Ваш аккаунт не подтвержден"
-                            );
-                            return;
-                        }
-
+            if (user != null) {
+                if (user.getPassword().equals(password)) {
+                    if (user.getStatus() == UserStatus.BLOCKED) {
+                        JOptionPane.showMessageDialog(LoginWindow.this,
+                                "Ваш аккаунт заблокирован",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    } else if (user.getStatus() == UserStatus.WAIT) {
+                        JOptionPane.showMessageDialog(LoginWindow.this,
+                                "Ваш аккаунт не подтвержден",
+                                "Ошибка",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    } else {
                         JOptionPane.showMessageDialog(
                                 LoginWindow.this,
                                 "Успешный вход! Добро пожаловать"
                         );
 
-                        if (user.getRole() == UserRole.ADMIN)
-                            new AdminWindow(db, user);
-                        else if (user.getRole() == UserRole.USER)
-                            new MainWindow(db, user);
+                        switch (user.getRole()) {
+                            case USER -> {
+                                new MainWindow(db, user);
+                            } case ADMIN -> {
+                                new AdminWindow(db, user);
+                            } case MANAGER -> {
+                                JOptionPane.showMessageDialog(
+                                        LoginWindow.this,
+                                        "Данная система пока в реализации"
+                                );
+                            }
+                        }
                         dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(
-                                LoginWindow.this,
-                                "Неверный логин или пароль"
-                        );
                     }
                 } else {
-                    JOptionPane.showMessageDialog(
-                            LoginWindow.this,
-                            "Неверный логин или пароль"
-                    );
+                    throw new UnsuccessfulValidationException("Неверный пароль");
                 }
+            } else {
+                throw new UnsuccessfulValidationException("Такого логина не существует");
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
+            JOptionPane.showMessageDialog(LoginWindow.this,
+                    "Неизвестная ошибка с БД",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } catch (UnsuccessfulValidationException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(LoginWindow.this,
+                    "Неверный логин или пароль",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
-    public void actionRegistration (){
-        setVisible(false); // скрываем окно авторизации
-        RegistrationWindow regWindow = new RegistrationWindow(db, this);
-        regWindow.setVisible(true);
+    public void callRegistrationWindow (){
+        new RegistrationWindow(db, this);
     }
 }
 

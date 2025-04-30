@@ -7,13 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import types.UserRole;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 
-public class RegistrationWindow extends JFrame {
-    private DatabaseConnection db;
-    private JFrame parentWindow;
+public class RegistrationWindow extends JDialog {
+    private final DatabaseConnection db;
     private JTextField firstNameField;
     private JTextField middleNameField;
     private JTextField lastNameField;
@@ -21,14 +18,12 @@ public class RegistrationWindow extends JFrame {
     private JTextField phoneField;
     private JTextField loginField;
     private JPasswordField passwordField;
-    private JButton registerButton;
-    private Class<NullException> nullExceptionClass;
 
-    public RegistrationWindow(DatabaseConnection db, JFrame parentWindow) {
+    public RegistrationWindow(DatabaseConnection db, JFrame parent) {
+        super(parent, "Регистрация", ModalityType.APPLICATION_MODAL);
+
         this.db = db;
-        this.parentWindow =  parentWindow;
 
-        setTitle("Регистрация");
         setSize(400, 400);
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -39,7 +34,8 @@ public class RegistrationWindow extends JFrame {
     }
 
     private void initComponents() {
-        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
+        JPanel actionPanel = new JPanel(new FlowLayout());
 
         // Метки и поля
         panel.add(new JLabel("Имя:"));
@@ -70,50 +66,42 @@ public class RegistrationWindow extends JFrame {
         passwordField = new JPasswordField();
         panel.add(passwordField);
 
-        registerButton = new JButton("Зарегистрироваться");
-        registerButton.addActionListener( e -> clickButtonRegistration());
-        panel.add(registerButton);
+        JButton registerButton = new JButton("Зарегистрироваться");
+        registerButton.addActionListener(e -> registrations());
+        actionPanel.add(registerButton);
 
-        panel.add(new JLabel()); // пустая ячейка
-
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed (WindowEvent e) {
-                if (parentWindow != null) {
-                    parentWindow.setVisible(true);
-                }
-            }
-        });
-
-        add(panel);
+        add(panel, BorderLayout.CENTER);
+        add(actionPanel, BorderLayout.SOUTH);
     }
 
-    private void clickButtonRegistration() {
-        String firstName = StringUtils.trimToNull(firstNameField.getText());
-        String middleName = StringUtils.trimToNull(middleNameField.getText());
-        String lastName = StringUtils.trimToNull(lastNameField.getText());
-        String ageText = StringUtils.trimToNull(ageField.getText());
-        String phone = StringUtils.trimToNull(phoneField.getText());
-        String login = StringUtils.trimToNull(loginField.getText());
-        String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
-
+    private void registrations() {
         try {
-            User user = new User(
-                    login,
-                    password,
-                    UserRole.USER
-            );
-            int user_id = db.getUserDAO().addUser(user);
+            String firstName = StringUtils.trimToNull(firstNameField.getText());
+            String middleName = StringUtils.trimToNull(middleNameField.getText());
+            String lastName = StringUtils.trimToNull(lastNameField.getText());
+            int age = Integer.parseInt(StringUtils.trimToNull(ageField.getText()));
+            String phone = StringUtils.trimToNull(phoneField.getText());
+            String login = StringUtils.trimToNull(loginField.getText());
+            String password = StringUtils.trimToNull(new String(passwordField.getPassword()));
 
-            Driver driver = new Driver(
-                    firstName,
-                    middleName,
-                    lastName,
-                    Integer.parseInt(ageText),
-                    phone,
-                    user_id
+            int user_id = db.getUserDAO().addUser(
+                    new User (
+                        login,
+                        password,
+                        UserRole.USER
+                    )
             );
-            db.getDriverDAO().addDriver(driver);
+
+            db.getDriverDAO().addDriver(
+                    new Driver(
+                        firstName,
+                        middleName,
+                        lastName,
+                        age,
+                        phone,
+                        user_id
+                    )
+            );
 
             db.commit();
             JOptionPane.showMessageDialog(this, "Вы успешно зарегистрировались!");

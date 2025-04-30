@@ -191,7 +191,7 @@ public class DriverDAO {
                 System.out.println("Ничего не было удалено");
             }
         } catch (SQLException e) {
-
+            e.printStackTrace();
         }
     }
 }

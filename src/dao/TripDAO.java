@@ -1,6 +1,5 @@
 package dao;
 import customException.*;
-import entity.Car;
 import entity.Trip;
 import java.sql.*;
 import java.util.ArrayList;
