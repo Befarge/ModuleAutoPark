@@ -84,6 +84,6 @@ public class Trip {
 
     @Override
     public String toString() {
-        return "Начало: " + startTime.substring(0,16) + ", Конец: " + endTime.substring(0,16);
+        return "Начало: " + startTime.substring(0,16);
     }
 }

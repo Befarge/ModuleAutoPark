@@ -1,21 +1,15 @@
 package window.trip;
 
-import customException.InactionException;
 import db.DatabaseConnection;
-import entity.Car;
+
 import entity.Trip;
-import types.SearchCriterionCar;
+
 import types.SearchCriterionTrip;
-import window.car.AddCarWindow;
-import window.car.EditCarWindow;
-import window.car.ListCarsAdminWindow;
-import window.car.ViewCarWindow;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.List;
 
 public class ListTripWindow extends JDialog{
@@ -24,7 +18,7 @@ public class ListTripWindow extends JDialog{
     private DefaultListModel<Trip> listModel;
 
     public ListTripWindow(Window parent, DatabaseConnection db) {
-        super(parent, "Список машин", Dialog.ModalityType.APPLICATION_MODAL);
+        super(parent, "История поездок", Dialog.ModalityType.APPLICATION_MODAL);
         this.db = db;
 
         setSize(700, 500);
@@ -121,8 +115,17 @@ public class ListTripWindow extends JDialog{
                             if (db.getDriverDAO().getDriverById(trip.getDriverId()).getPhoneNumber().contains(searchText))
                                 listModel.addElement(trip);
                         }
-                    }
-                    case null -> {
+                    } case END -> {
+                        for (Trip trip : trips) {
+                            if (trip.getEndTime() != null)
+                                listModel.addElement(trip);
+                        }
+                    } case NO_END -> {
+                        for (Trip trip : trips) {
+                            if (trip.getEndTime() == null)
+                                listModel.addElement(trip);
+                        }
+                    } case null -> {
                         JOptionPane.showMessageDialog(ListTripWindow.this, "Параметр не указан.");
                     }
                 }
